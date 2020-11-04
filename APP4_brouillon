@@ -1,10 +1,9 @@
 import java.util.*;
 //----------------------------------------------------------------------------------------------------------------------
 
-nhgcxwxcfghjklkjhgvfcdxfcghjkoiugytfdxcfvbnjk,lijhuyftdrsxcfvb
-lkjhgvcbnk,ljhgfcgvbh
-Si vous voyez ce que j'ai écrit, faites un signe. Sonia
 
+Si vous voyez ce que j'ai écrit, faites un signe. Sonia
+on voit bien :)
 class Etudiant{
     private String nom, prenom;
     private double noteProjet, moyenne;
