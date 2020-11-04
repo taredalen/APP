@@ -3,7 +3,8 @@ import java.util.*;
 
 nhgcxwxcfghjklkjhgvfcdxfcghjkoiugytfdxcfvbnjk,lijhuyftdrsxcfvb
 lkjhgvcbnk,ljhgfcgvbh
-,kjnbhvgbhjnkljhbvg
+Si vous voyez ce que j'ai écrit, faites un signe. Sonia
+
 class Etudiant{
     private String nom, prenom;
     private double noteProjet, moyenne;
