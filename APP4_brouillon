@@ -1,5 +1,9 @@
 import java.util.*;
 //----------------------------------------------------------------------------------------------------------------------
+
+nhgcxwxcfghjklkjhgvfcdxfcghjkoiugytfdxcfvbnjk,lijhuyftdrsxcfvb
+lkjhgvcbnk,ljhgfcgvbh
+,kjnbhvgbhjnkljhbvg
 class Etudiant{
     private String nom, prenom;
     private double noteProjet, moyenne;
