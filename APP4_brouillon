@@ -4,6 +4,14 @@ import java.util.*;
 
 Si vous voyez ce que j'ai écrit, faites un signe. Sonia
 on voit bien :)
+alors tentative n°2323
+/
+dd
+
+
+
+
+
 class Etudiant{
     private String nom, prenom;
     private double noteProjet, moyenne;
