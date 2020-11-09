@@ -19,17 +19,15 @@ class Etudiant{
 class Matiere {
     private double noteOrale, notEcrite;
     private String nomMatiere;
-    
+
     public Matiere(double notEcrite, double noteOrale,String nomMatiere){
         this.nomMatiere = nomMatiere;
         this.notEcrite = notEcrite;
         this.noteOrale = noteOrale;
     }
-    public static void afficherMatiere() {
-        for (Integer key : APP4.hashMapMatieres.keySet()) {
-            for (Matiere m : APP4.hashMapMatieres.get(key)) 
-                System.out.println(m.getNomMatiere() + " : NE = " + m.getNotEcrite()  + " , NO = "+ m.getNoteOrale());
-        }
+    public static void afficherMatiere(int key) {
+        for (Matiere m : APP4.hashMapMatieres.get(key))
+            System.out.println(m.getNomMatiere() + " : NE = " + m.getNotEcrite()  + " , NO = "+ m.getNoteOrale());
     }
 
     public String getNomMatiere(){ return nomMatiere; }
@@ -83,7 +81,7 @@ public class APP4 {
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
                         hashMapEtudiants.get(key).afficherEtudiant();
-                        Matiere.afficherMatiere();
+                        Matiere.afficherMatiere(key);
                         break;
                     case 7 :
                         System.out.println("Vous avez quitte le programme.");
@@ -109,7 +107,7 @@ public class APP4 {
         String nom = sc.next();
         System.out.print("Entrez le prenom : ");
         String prenom = sc.next();
-        
+
         for (String nomMatiere: listeMatieres){
             System.out.print("La note ecrite obtenue en " + nomMatiere + " : ");
             double notEcrite = Double.parseDouble(sc.next());
