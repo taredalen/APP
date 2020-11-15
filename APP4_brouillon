@@ -1,58 +1,92 @@
 import java.util.*;
 //----------------------------------------------------------------------------------------------------------------------
+
+
 class Etudiant{
-    private String nom, prenom;
-    private double noteProjet, moyenne;
+	private String Nom, Prenom, Type;
+	private double Moyenne;
+	
+	public Etudiant(String nom, String prenom, String type, double moyenne) {
+		this.Nom = nom;
+		this.Prenom = prenom;
+		this.Moyenne = moyenne;
+		this.Type = type;
+	}
+	
+	public void AfficherEtudiant(int key) {
+		System.out.println("Etudiant : " + Nom + " " + Prenom);
+		System.out.println("Annee : " + Type);
+		System.out.println("Moyenne : " + Moyenne);
+	}
+	
+	public static void listEtudiant() {
+        System.out.println("Liste des etudiants : ");
+        for (Integer key : teste.Etudiants.keySet()) {
+            System.out.println("numero etudiant : " + key + ". Nom : " + teste.Etudiants.get(key).getNom() + ". Prenom : " + teste.Etudiants.get(key).getPrenom() + "Annee : " + teste.Etudiants.get(key).getType() +". Moyenne : " + teste.Etudiants.get(key).getMoyenne());
+        }
+	}
+	
+	String getPrenom(){return Prenom;}
+	String getType() {return Type;}
+    String getNom(){return Nom;}
+    double getMoyenne(){return Moyenne;}
 
-    public Etudiant(String nom, String prenom, double noteProjet, double moyenne){
-        this.nom = nom;
-        this.prenom = prenom;
-        this.moyenne = moyenne;
-        this.noteProjet = noteProjet;
-    }
-
-    public void afficherEtudiant() {
-        System.out.println("Nom : " + nom + "\nPrenom : " + prenom +  "\nMoyenne : " + moyenne);
-    }
 }
 //----------------------------------------------------------------------------------------------------------------------
-class Matiere {
-    private double noteOrale, notEcrite;
-    private String nomMatiere;
 
-    public Matiere(double notEcrite, double noteOrale,String nomMatiere){
-        this.nomMatiere = nomMatiere;
-        this.notEcrite = notEcrite;
-        this.noteOrale = noteOrale;
-    }
-    public static void afficherMatiere(int key) {
-        for (Matiere m : APP4.hashMapMatieres.get(key))
-            System.out.println(m.getNomMatiere() + " : NE = " + m.getNotEcrite()  + " , NO = "+ m.getNoteOrale());
-    }
 
-    public String getNomMatiere(){ return nomMatiere; }
-    public double getNotEcrite(){ return notEcrite; }
-    public double getNoteOrale(){ return noteOrale; }
-}
-//----------------------------------------------------------------------------------------------------------------------
 class EtudiantDerniere extends Etudiant{
-    public EtudiantDerniere(String nom, String prenom, double noteProjet, double moyenne) {
-        super(nom, prenom, noteProjet, moyenne);
+	private double NoteProjet;
+	
+    public EtudiantDerniere(String nom, String prenom, String type, double noteProjet, double moyenne) {
+        super(nom, prenom, type, moyenne);
+        this.NoteProjet = noteProjet;
+    }
+    public static void MoyenneEtudiant(int key){
+        double sum = 0;
+        int size = 0;
+        for (int i; i < 8; i = i++) {
+            size++; 
+	        sum += (teste.Matieres.get(key).getOralHistoire(key) + getOralMath(key) + getOralLangue(key)) * 0.4 + (getEcritHistoire(key) + getEcritMath(key) + getEcritLangue(key)) * 0.6;
+        } 
+    	System.out.println("\nSalaire moyen des vendeurs : " + sum / size);
+
     }
 }
-//---------------------------------------------------------------------------------------------------------------------
+
+
 class EtudiantAutre extends Etudiant{
-    public EtudiantAutre(String nom, String prenom, Double noteProjet, double moyenne) {
-        super(nom, prenom, noteProjet, moyenne);
+    public EtudiantAutre(String nom, String prenom, String type, double moyenne) {
+    	super(nom, prenom, type, moyenne);
     }
 }
-//----------------------------------------------------------------------------------------------------------------------
-public class APP4 {
-    public static HashMap <Integer, Etudiant> hashMapEtudiants = new HashMap<>();
-    public static HashMap <Integer, ArrayList<Matiere>> hashMapMatieres = new HashMap<>();
+
+class Matiere_ {
+    private double OralHistoire, OralMath, OralLangue, EcritHistoire, EcritMath, EcritLangue;
+
+    public Matiere_(double OralHistoire, double OralMath, double OralLangue, double EcritHistoire, double EcritMath, double EcritLangue){
+        this.OralHistoire  = OralHistoire;
+        this.OralMath = OralMath;
+        this.OralLangue = OralLangue;
+        this.EcritHistoire  = EcritHistoire;
+        this.EcritMath = EcritMath;
+        this.EcritLangue = EcritLangue;
+    }
+    
+	double getOralHistoire(){return OralHistoire;}
+	double getOralMath() {return OralMath;}
+	double getOralLangue(){return OralLangue;}
+	double getEcritHistoire() {return EcritHistoire;}
+	double getEcritMath(){return EcritMath;}
+	double getEcritLangue() {return EcritLangue;}
+}
+
+static class teste {
+    public static HashMap<Integer, Etudiant> Etudiants = new HashMap<>();
+    public static HashMap<Integer, Matiere_> Matieres = new HashMap<>();
 
     public static Scanner sc = new Scanner(System.in);
-    private static int key = 0;
+    public static int key = 0;
 
     public static void main(String[] args) {
         String menu = "------------------------------------------------\n" +
@@ -71,17 +105,19 @@ public class APP4 {
             try {
                 System.out.print("> : ");
                 switch (Integer.parseInt(sc.next())) {
-                    case 1 :
-                        System.out.print(menu);
-                        break;
+	                case 1 :
+	                    System.out.print(menu);
+	                    break;
                     case 2 :
                         nouveauEtudiant();
                         break;
                     case 3 :
-                        System.out.print("Entrez le numero d'etudiant : ");
+                    	System.out.print("Entrez le numero de l'étudiant : ");
                         key = sc.nextInt();
-                        hashMapEtudiants.get(key).afficherEtudiant();
-                        Matiere.afficherMatiere(key);
+                        Etudiants.get(key).AfficherEtudiant(key);
+                        break;
+                    case 4 :
+                    	System.out.print("Entrez le numero de l'étudiant : ");
                         break;
                     case 7 :
                         System.out.println("Vous avez quitte le programme.");
@@ -93,41 +129,59 @@ public class APP4 {
             } catch (IllegalStateException | NumberFormatException e) {
                 System.out.println("Erreur. Veuillez recommencer!\n");
             } catch (InputMismatchException | NullPointerException e) {
-                System.out.print("Aucun etudiant ne correspond a ce numero.\n");
+                System.out.print("Aucun employe ne correspond a ce numero.\n");
             }
         }
     }
 
-    public static void nouveauEtudiant(){
-        key++;
-        String[] listeMatieres = {"Histoire-Geo", "Mathematiques", "Langues"};
 
+    public static void nouveauEtudiant() {
+        key++;
         System.out.print("\n--------------- NOUVEAU ETUDIANT --------------\n");
         System.out.print("Entrez le nom : ");
         String nom = sc.next();
         System.out.print("Entrez le prenom : ");
         String prenom = sc.next();
 
+		System.out.print("\nSi l'etudiant est en derniere annee entrez 0, sinon, tapez 1 : ");
+	        int Annee = Integer.parseInt(sc.next());
+	        if (Annee == 0){
+	            EtudiantAutre etudiant = new EtudiantAutre(nom, prenom, "Premiere ou deuxieme annee", 0);
+	            Etudiants.put(key, etudiant);
+	        }
+	        else {
+	        	System.out.print("\nEntrez la note de l'étudiant : ");
+	        	double noteProjet = Double.parseDouble(sc.next());
+	            EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, "Derniere annee", noteProjet, 0);
+	            Etudiants.put(key, etudiant);
+	        }
+  
+        ArrayList <String> listeMatieres = new ArrayList<>();
+        Collections.addAll(listeMatieres, "Histoire-Geo", "Mathematiques", "Langues");
+
         for (String nomMatiere: listeMatieres){
-            System.out.print("La note ecrite obtenue en " + nomMatiere + " : ");
-            double notEcrite = Double.parseDouble(sc.next());
-            System.out.print("La note orale obtenue en " + nomMatiere + " : ");
-            double noteOrale = Double.parseDouble(sc.next());
-            Matiere matiere = new Matiere(notEcrite, noteOrale, nomMatiere );
-            hashMapMatieres.computeIfAbsent(key, k -> new ArrayList<>()).add(matiere);
+            System.out.print("La note ecrite obtenue en Histoire : ");
+            double EcritHistoire = Double.parseDouble(sc.next());
+            System.out.print("La note orale obtenue en Histoire : ");
+            double OralHistoire = Double.parseDouble(sc.next());
+            
+            System.out.print("La note ecrite obtenue en Mathematiques : ");
+            double EcritMath = Double.parseDouble(sc.next());
+            System.out.print("La note orale obtenue en Mathematiques : ");
+            double OralMath = Double.parseDouble(sc.next());
+            
+            System.out.print("La note ecrite obtenue en Langues : ");
+            double EcritLangue = Double.parseDouble(sc.next());
+            System.out.print("La note orale obtenue en Langues : ");
+            double OralLangue = Double.parseDouble(sc.next());
+            
+            Matiere_ matiere = new Matiere_(OralHistoire, OralMath, OralLangue, EcritHistoire, EcritMath, EcritLangue);
+            Matieres.put(key, matiere);
         }
 
-        System.out.print("\nEntrez la note du Projet si l'etudiant est en \nderniere annee. Sinon entrez 0 : ");
-        double noteProjet = Double.parseDouble(sc.next());
-        if (noteProjet == 0){
-            EtudiantAutre etudiant = new EtudiantAutre(nom, prenom, null, 0);
-            hashMapEtudiants.put(key, etudiant);
-        }
-        else {
-            EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, noteProjet, 0);
-            hashMapEtudiants.put(key, etudiant);
-        }
-        System.out.println("\nEtudient est bien ajoute dans la liste.\nLe numero d'etudiant : " + key);
+        
+        System.out.println("\nEtudiant est bien ajoute dans la liste.\nLe numero d'etudiant : " + key);
         System.out.print("------------------------------------------------\n");
     }
+    
 }
