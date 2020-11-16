@@ -1,141 +1,206 @@
 import java.util.*;
 //----------------------------------------------------------------------------------------------------------------------
+class Etudiant {
+    public String nom, prenom;
+    public double moyenne;
 
+    public Etudiant(String nom, String prenom, double moyenne) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.moyenne = moyenne;
+    }
 
-class Etudiant{
-	private String Nom, Prenom, Type;
-	private double Moyenne;
-	
-	public Etudiant(String nom, String prenom, String type, double moyenne) {
-		this.Nom = nom;
-		this.Prenom = prenom;
-		this.Moyenne = moyenne;
-		this.Type = type;
-	}
-	
-	public void AfficherEtudiant(int key) {
-		System.out.println("Etudiant : " + Nom + " " + Prenom);
-		System.out.println("Annee : " + Type);
-		System.out.println("Moyenne : " + Moyenne);
-	}
-	
-	public static void listEtudiant() {
+    public void afficherEtudiant() {
+        System.out.println("Nom : " + nom + "\nPrenom : " + prenom + "\nMoyenne : " + moyenne);
+    }
+
+    public double moyenneEtudiant(int key) {
+        double moyenneOrale = Matiere.moyenneOrale(key);
+        double moyenneEcrite = Matiere.moyenneEcrite(key);
+        return moyenne = (moyenneOrale + moyenneEcrite) / 2;
+    }
+
+    public static void supprimerEtudiant(Etudiant etudiant, int key) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("\nEntrez 1 pour supprimer " + etudiant.getNom() + " " + etudiant.getPrenom() + "\nEntrez 0 pour annuler la suppression : ");
+        int reponse = Integer.parseInt(sc.next());
+        if (reponse == 1) {
+            APP4.hashMapEtudiants.remove(key);
+            Matiere.hashMapMatieres.remove(key);
+            System.out.println("Etudiant supprime de la liste.");
+            return;
+        } if (reponse == 0) System.out.println("Suppression annulee.");
+    }
+
+    public static void listEtudiants() {
         System.out.println("Liste des etudiants : ");
-        for (Integer key : teste.Etudiants.keySet()) {
-            System.out.println("numero etudiant : " + key + ". Nom : " + teste.Etudiants.get(key).getNom() + ". Prenom : " + teste.Etudiants.get(key).getPrenom() + "Annee : " + teste.Etudiants.get(key).getType() +". Moyenne : " + teste.Etudiants.get(key).getMoyenne());
-        }
-	}
-	
-	String getPrenom(){return Prenom;}
-	String getType() {return Type;}
-    String getNom(){return Nom;}
-    double getMoyenne(){return Moyenne;}
+        for (Integer key : APP4.hashMapEtudiants.keySet())
+            System.out.println("N° etudiant : " + key + ". Nom : " + APP4.hashMapEtudiants.get(key).getNom() + ". Prenom : " + APP4.hashMapEtudiants.get(key).getPrenom());
+    }
+
+    public static void listeValidationAnnee(){
+        int nombreEtudiants  = 0 ;
+        for (Integer key : APP4.hashMapEtudiants.keySet())
+            if (APP4.hashMapEtudiants.get(key).getMoyenne() >= 10) nombreEtudiants++;
+        System.out.println("Nombre d'etudiants qui valident l'annee : " + nombreEtudiants);
+        System.out.println("Nombre d'etudiants qui ne valident pas l'annee : " + (APP4.hashMapEtudiants.size() - nombreEtudiants));
+    }
+    
+    public String getNom(){ return nom; }
+    public String getPrenom(){ return prenom; }
+    public double getMoyenne(){ return moyenne; }
+
+    public void setNom(String nom){ this.nom = nom; }
+    public void setPrenom(String prenom){ this.prenom = prenom; }
 
 }
 //----------------------------------------------------------------------------------------------------------------------
+class EtudiantDerniere extends Etudiant {
+    private double noteProjet;
 
-
-class EtudiantDerniere extends Etudiant{
-	private double NoteProjet;
-	
-    public EtudiantDerniere(String nom, String prenom, String type, double noteProjet, double moyenne) {
-        super(nom, prenom, type, moyenne);
-        this.NoteProjet = noteProjet;
+    public EtudiantDerniere(String nom, String prenom, double moyenne, double noteProjet) {
+        super(nom, prenom, moyenne);
+        this.noteProjet = noteProjet;
     }
-    public static void MoyenneEtudiant(int key){
+    @Override
+    public void afficherEtudiant() {
+        super.afficherEtudiant();
+        System.out.println("Note Projet : " + noteProjet);
+    }
+    @Override
+    public double moyenneEtudiant(int key) {
+        return moyenne = (super.moyenneEtudiant(key) * 2 + noteProjet) / 3;
+    }
+}
+//---------------------------------------------------------------------------------------------------------------------
+class Matiere {
+    public static String[] listeMatieres = {"Mathematiques", "Physique"};
+    public static HashMap<Integer, ArrayList<Matiere>> hashMapMatieres = new HashMap<>();
+
+    private double noteOrale, notEcrite;
+    private String nomMatiere;
+
+    public Matiere(double notEcrite, double noteOrale, String nomMatiere) {
+        this.nomMatiere = nomMatiere;
+        this.notEcrite = notEcrite;
+        this.noteOrale = noteOrale;
+    }
+    public static void listeMatieres(int key) {
+        Scanner sc = new Scanner(System.in);
+        for (String nomMatiere : listeMatieres) {
+            System.out.print("La note ecrite obtenue en " + nomMatiere + " : ");
+            double notEcrite = Double.parseDouble(sc.next());
+            System.out.print("La note orale obtenue en " + nomMatiere + " : ");
+            double noteOrale = Double.parseDouble(sc.next());
+            Matiere matiere = new Matiere(notEcrite, noteOrale, nomMatiere);
+            hashMapMatieres.computeIfAbsent(key, k -> new ArrayList<>()).add(matiere);
+        }
+    }
+    public static double moyenneOrale(int key) {
         double sum = 0;
-        int size = 0;
-        for (int i; i < 8; i = i++) {
-            size++; 
-	        sum += (teste.Matieres.get(key).getOralHistoire(key) + getOralMath(key) + getOralLangue(key)) * 0.4 + (getEcritHistoire(key) + getEcritMath(key) + getEcritLangue(key)) * 0.6;
-        } 
-    	System.out.println("\nSalaire moyen des vendeurs : " + sum / size);
-
+        for (Matiere m : hashMapMatieres.get(key)) {
+            sum += m.getNoteOrale() * 0.4;
+        } return sum / (listeMatieres.length * 0.4);
     }
-}
-
-
-class EtudiantAutre extends Etudiant{
-    public EtudiantAutre(String nom, String prenom, String type, double moyenne) {
-    	super(nom, prenom, type, moyenne);
+    public static double moyenneEcrite(int key) {
+        double sum = 0;
+        for (Matiere m : hashMapMatieres.get(key)) {
+            sum += m.getNotEcrite() * 0.6;
+        } return sum / (listeMatieres.length * 0.6);
     }
-}
-
-class Matiere_ {
-    private double OralHistoire, OralMath, OralLangue, EcritHistoire, EcritMath, EcritLangue;
-
-    public Matiere_(double OralHistoire, double OralMath, double OralLangue, double EcritHistoire, double EcritMath, double EcritLangue){
-        this.OralHistoire  = OralHistoire;
-        this.OralMath = OralMath;
-        this.OralLangue = OralLangue;
-        this.EcritHistoire  = EcritHistoire;
-        this.EcritMath = EcritMath;
-        this.EcritLangue = EcritLangue;
+    public static void afficherMatiere(int key) {
+        for (Matiere m : hashMapMatieres.get(key))
+            System.out.println(m.getNomMatiere() + " : NE = " + m.getNotEcrite() + " , NO = " + m.getNoteOrale());
     }
-    
-	double getOralHistoire(){return OralHistoire;}
-	double getOralMath() {return OralMath;}
-	double getOralLangue(){return OralLangue;}
-	double getEcritHistoire() {return EcritHistoire;}
-	double getEcritMath(){return EcritMath;}
-	double getEcritLangue() {return EcritLangue;}
-}
 
-static class teste {
-    public static HashMap<Integer, Etudiant> Etudiants = new HashMap<>();
-    public static HashMap<Integer, Matiere_> Matieres = new HashMap<>();
+    public String getNomMatiere() { return nomMatiere; }
+    public double getNotEcrite() { return notEcrite; }
+    public double getNoteOrale() { return noteOrale; }
+
+    public void setNotEcrite(double notEcrite) { this.notEcrite = notEcrite; }
+    public void setNoteOrale(double noteOrale) { this.noteOrale = noteOrale; }
+
+}
+//----------------------------------------------------------------------------------------------------------------------
+public class APP4 {
+    public static HashMap<Integer, Etudiant> hashMapEtudiants = new HashMap<>();
 
     public static Scanner sc = new Scanner(System.in);
-    public static int key = 0;
+    private static int key = 0;
 
     public static void main(String[] args) {
-        String menu = "------------------------------------------------\n" +
-                "Afficher le menu          ]------------------[ 1\n" +
-                "Ajouter un etudiant       ]------------------[ 2\n" +
-                "Afficher un etudiant      ]------------------[ 3\n" +
-                "Calculer la moyenne       ]------------------[ 4\n" +
-                "Verifier l'admission      ]------------------[ 5\n" +
-                "Supprimer un etudiant     ]------------------[ 6\n" +
-                "Statistique d'admission   ]------------------[ 7\n" +
-                "Quitter le programme      ]------------------[ 8\n" +
-                "------------------------------------------------\n";
+        String menu =
+                    "-----------------------------------------------  " +
+                    "\n0 ⎢MENU ⎢   ADMINISTRATION SCOLAIRE  ⎥ EXIT ⎥ 9  " +
+                    "\n-----------------------------------------------  " +
+                    "\n1 ⎢ AJOUTER ETUDIANT   ⎢⎥ STAT D'ADMISSION  ⎥ 8  " +
+                    "\n2 ⎢ AFFICHER ETUDIANT  ⎢⎥ LISTE D'ETUDIANTS ⎥ 7  " +
+                    "\n3 ⎢ MODIFIER ETUDIANT  ⎢⎥ ADMISSION ETUDIANT⎥ 6  " +
+                    "\n4 ⎢ SUPPRIMER ETUDIANT ⎢⎥ MOYENNE ETUDIANT  ⎥ 5  " +
+                    "\n-----------------------------------------------\n" ;
         System.out.print(menu);
-        System.out.print("\nEntrez l'option souhaitee apres ce symbole ");
+        System.out.print("Entrez l'option souhaitee apres ce symbole  : ");
         while (true) {
             try {
-                System.out.print("> : ");
+                System.out.print("➤ ");
                 switch (Integer.parseInt(sc.next())) {
-	                case 1 :
-	                    System.out.print(menu);
-	                    break;
-                    case 2 :
+                    case 0:
+                        System.out.print(menu);
+                        break;
+                    case 1:
                         nouveauEtudiant();
                         break;
-                    case 3 :
-                    	System.out.print("Entrez le numero de l'étudiant : ");
+                    case 2:
+                        System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
-                        Etudiants.get(key).AfficherEtudiant(key);
+                        hashMapEtudiants.get(key).afficherEtudiant();
+                        Matiere.afficherMatiere(key);
                         break;
-                    case 4 :
-                    	System.out.print("Entrez le numero de l'étudiant : ");
+                    case 3:
+                        System.out.print("Entrez le numero d'etudiant : ");
+                        key = sc.nextInt();
+                        modifierEtudiant(key);
                         break;
-                    case 7 :
+                    case 4:
+                        System.out.print("Entrez le numero d'etudiant : ");
+                        key = sc.nextInt();
+                        Etudiant etudiant = APP4.hashMapEtudiants.get(key);
+                        Etudiant.supprimerEtudiant(etudiant, key);
+                        break;
+                    case 5:
+                        System.out.print("Entrez le numero d'etudiant : ");
+                        key = sc.nextInt();
+                        System.out.println("Moyenne d'etudiant : " + hashMapEtudiants.get(key).moyenneEtudiant(key));
+                        break;
+                    case 6:
+                        double moyenne = hashMapEtudiants.get(key).moyenneEtudiant(key);
+                        if(moyenne >= 10) System.out.println("Etudient selectionne est admis.");
+                        else System.out.println("Etudient selectionne n'est pas admis.");
+                        break;
+                    case 7:
+                        Etudiant.listEtudiants();
+                        break;
+                    case 8:
+                        Etudiant.listeValidationAnnee();
+                        break;
+                    case 9:
                         System.out.println("Vous avez quitte le programme.");
                         sc.close();
                         System.exit(0);
                         break;
-                    default : System.out.println("Option incorrecte!");
+                    default:
+                        System.out.println("Option incorrecte!");
+                        break;
                 }
             } catch (IllegalStateException | NumberFormatException e) {
                 System.out.println("Erreur. Veuillez recommencer!\n");
             } catch (InputMismatchException | NullPointerException e) {
-                System.out.print("Aucun employe ne correspond a ce numero.\n");
+                System.out.print("Aucun etudiant ne correspond a ce numero.\n");
             }
         }
     }
 
-
-    public static void nouveauEtudiant() {
+    public static void nouveauEtudiant() { // TODO EXEPTION
         key++;
         System.out.print("\n--------------- NOUVEAU ETUDIANT --------------\n");
         System.out.print("Entrez le nom : ");
@@ -143,45 +208,54 @@ static class teste {
         System.out.print("Entrez le prenom : ");
         String prenom = sc.next();
 
-		System.out.print("\nSi l'etudiant est en derniere annee entrez 0, sinon, tapez 1 : ");
-	        int Annee = Integer.parseInt(sc.next());
-	        if (Annee == 0){
-	            EtudiantAutre etudiant = new EtudiantAutre(nom, prenom, "Premiere ou deuxieme annee", 0);
-	            Etudiants.put(key, etudiant);
-	        }
-	        else {
-	        	System.out.print("\nEntrez la note de l'étudiant : ");
-	        	double noteProjet = Double.parseDouble(sc.next());
-	            EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, "Derniere annee", noteProjet, 0);
-	            Etudiants.put(key, etudiant);
-	        }
-  
-        ArrayList <String> listeMatieres = new ArrayList<>();
-        Collections.addAll(listeMatieres, "Histoire-Geo", "Mathematiques", "Langues");
+        Matiere.listeMatieres(key);
 
-        for (String nomMatiere: listeMatieres){
-            System.out.print("La note ecrite obtenue en Histoire : ");
-            double EcritHistoire = Double.parseDouble(sc.next());
-            System.out.print("La note orale obtenue en Histoire : ");
-            double OralHistoire = Double.parseDouble(sc.next());
-            
-            System.out.print("La note ecrite obtenue en Mathematiques : ");
-            double EcritMath = Double.parseDouble(sc.next());
-            System.out.print("La note orale obtenue en Mathematiques : ");
-            double OralMath = Double.parseDouble(sc.next());
-            
-            System.out.print("La note ecrite obtenue en Langues : ");
-            double EcritLangue = Double.parseDouble(sc.next());
-            System.out.print("La note orale obtenue en Langues : ");
-            double OralLangue = Double.parseDouble(sc.next());
-            
-            Matiere_ matiere = new Matiere_(OralHistoire, OralMath, OralLangue, EcritHistoire, EcritMath, EcritLangue);
-            Matieres.put(key, matiere);
+        System.out.print("\nEntrez la note du Projet si l'etudiant est \nen derniere annee. Sinon entrez 0 : ");
+        double noteProjet = Double.parseDouble(sc.next());
+        if (noteProjet == 0) {
+            Etudiant etudiant = new Etudiant(nom, prenom, 0);
+            hashMapEtudiants.put(key, etudiant);
+        } else {
+            EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, 0, noteProjet);
+            hashMapEtudiants.put(key, etudiant);
         }
-
-        
-        System.out.println("\nEtudiant est bien ajoute dans la liste.\nLe numero d'etudiant : " + key);
+        System.out.println("\nEtudient est bien ajoute dans la liste.\nLe numero d'etudiant : " + key);
         System.out.print("------------------------------------------------\n");
     }
-    
+
+    public static void modifierEtudiant(int key){
+
+        System.out.print("------------- MODIFICATION DE PROFIL ----------\n");
+        System.out.print("Modifier le nom    ]---------------[ 1\n");
+        System.out.print("Modifier le prenom ]---------------[ 2\n");
+        System.out.print("Modifier les notes ]---------------[ 3\n");
+        System.out.print("Quitter            ]---------------[ 4\n");
+        boolean option = true;
+        while (option) {
+            System.out.print("\nEntrez l'option souhaitee : ");
+            switch (Integer.parseInt(sc.next())) {
+                case 1:
+                    break;
+                case 3:
+                    System.out.println("\nEntrez le numero de matiere pour laquelle vous souhaitez modifier les notes : ");
+                    int index = sc.nextInt();
+
+                    for (String nomMatiere : Matiere.listeMatieres) {
+                        System.out.println(nomMatiere + " - " + Arrays.asList(Matiere.listeMatieres).indexOf(nomMatiere));
+                    }
+                    ArrayList<Matiere> list = Matiere.hashMapMatieres.get(key);
+                    Object object = list.get(index);
+                    System.out.println("\nEntrez la nouvelle note ecrite  : ");
+                    //Matiere.hashMapMatieres.get(key).setNoteOrale(sc.next()); // TODO utiliser la methode des listes norm
+                    System.out.println("\nEntrez la nouvelle note orale  : ");
+
+                case 4 :
+                    System.out.print("\nLes modifications sont enregistrees.\n");
+                    System.out.print("------------------------------------------------\n");
+                    option = false;
+                    break;
+                default : System.out.println("Option incorrecte!");
+            }
+        }
+    }
 }
