@@ -1,10 +1,13 @@
+
 import java.util.*;
 //----------------------------------------------------------------------------------------------------------------------
 class Etudiant {
     public String nom, prenom;
     public double moyenne;
+    public int annee;
 
-    public Etudiant(String nom, String prenom, double moyenne) {
+    public Etudiant(int annee, String nom, String prenom, double moyenne) {
+        this.annee = annee;
         this.nom = nom;
         this.prenom = prenom;
         this.moyenne = moyenne;
@@ -47,6 +50,7 @@ class Etudiant {
     
     public String getNom(){ return nom; }
     public String getPrenom(){ return prenom; }
+    public int getAnnee(){ return annee; }
     public double getMoyenne(){ return moyenne; }
 
     public void setNom(String nom){ this.nom = nom; }
@@ -57,8 +61,8 @@ class Etudiant {
 class EtudiantDerniere extends Etudiant {
     private double noteProjet;
 
-    public EtudiantDerniere(String nom, String prenom, double moyenne, double noteProjet) {
-        super(nom, prenom, moyenne);
+    public EtudiantDerniere(int annee, String nom, String prenom, double moyenne, double noteProjet) {
+        super(annee, nom, prenom, moyenne);
         this.noteProjet = noteProjet;
     }
     @Override
@@ -73,7 +77,8 @@ class EtudiantDerniere extends Etudiant {
 }
 //---------------------------------------------------------------------------------------------------------------------
 class Matiere {
-    public static String[] listeMatieres = {"Mathematiques", "Physique"};
+    public static String[] listeMatieres;
+
     public static HashMap<Integer, ArrayList<Matiere>> hashMapMatieres = new HashMap<>();
 
     public double noteOrale, notEcrite;
@@ -85,7 +90,7 @@ class Matiere {
         this.noteOrale = noteOrale;
     }
 
-    public static void listeMatieres(int key) {
+    public static void listeMatieres(int key, String[] listeMatieres) {
         while(true){
             try{
                 double noteOrale, notEcrite ;
@@ -135,6 +140,10 @@ class Matiere {
 //----------------------------------------------------------------------------------------------------------------------
 public class APP4 {
     public static HashMap<Integer, Etudiant> hashMapEtudiants = new HashMap<>();
+
+    public static String[] listeMatieresINGE1 = {"Math", "Physi", "Program","Electro"};
+    public static String[] listeMatieresINGE2 = {"Python", "Math", "Anglais","BDD"};
+    public static String[] listeMatieresINGE3 = {"Robotique", "IA", "ML"};
 
     public static Scanner sc = new Scanner(System.in);
     private static int index, key = 0;
@@ -195,6 +204,8 @@ public class APP4 {
                         break;
                     case 6:
                         System.out.println("---------------- ADMISSION/NON ----------------");
+                        System.out.print("Entrez le numero d'etudiant : ");
+                        key = sc.nextInt();
                         double moyenne = hashMapEtudiants.get(key).moyenneEtudiant(key);
                         if(moyenne >= 10) System.out.println("Etudient selectionne est admis.");
                         else System.out.println("Etudient selectionne n'est pas admis.");
@@ -232,22 +243,29 @@ public class APP4 {
         System.out.print("Entrez le prenom : ");
         String prenom = sc.next();
 
-        Matiere.listeMatieres(key);
-
         do {
-            System.out.print("\nEntrez 1 l'etudiant est en derniere annee.\nSinon entrez 0 : ");
+            System.out.print("\nEntrez l'annne de l'etudiant (1, 2, 3): ");
             String reponse = sc.next();
-            if (reponse.equals("0")) {
-                Etudiant etudiant = new Etudiant(nom, prenom, 0);
+            if (reponse.equals("1")) {
+                Matiere.listeMatieres(key, listeMatieresINGE1);
+                Etudiant etudiant = new Etudiant(1,nom, prenom, 0);
                 hashMapEtudiants.put(key, etudiant);
                 break;
-            } if (reponse.equals("1")) { 
+            }
+            if (reponse.equals("2")) {
+                Matiere.listeMatieres(key, listeMatieresINGE2);
+                Etudiant etudiant = new Etudiant(2,nom, prenom, 0);
+                hashMapEtudiants.put(key, etudiant);
+                break;
+            }
+            if (reponse.equals("3")) {
+                Matiere.listeMatieres(key, listeMatieresINGE3);
                 double noteProjet;
                 System.out.print("Entrez la note projet obtenue : ");
                 while ((noteProjet = sc.nextDouble()) < 0 || noteProjet > 20) {
                     System.out.print("Entrez la note projet obtenue : ");
                 }
-                EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, 0, noteProjet);
+                EtudiantDerniere etudiant = new EtudiantDerniere(3, nom, prenom, 0, noteProjet);
                 hashMapEtudiants.put(key, etudiant);
                 break;
             }
@@ -260,6 +278,7 @@ public class APP4 {
                          "\n2 ⎢ MODIFIER LE PRENOM ⎢⎥ MODIFIER NOTE: NE ⎥ 3" +
                          "\n0 ⎢ QUITTER ET ENREGISTRER LES MODIFICATIONS⎥ 0\n" );
         boolean option = true;
+        int annee;
         while (option) {
             System.out.print("Entrez l'option souhaitee ➤ ");
             switch (Integer.parseInt(sc.next())) {
@@ -272,11 +291,18 @@ public class APP4 {
                     hashMapEtudiants.get(key).setPrenom(sc.next());
                     break;
                 case 3:
-                    index = choixMatiere();
+                    annee = hashMapEtudiants.get(key).getAnnee();
+                    if(annee == 1 ) choixMatiere(listeMatieresINGE1);
+                    if(annee == 2 ) choixMatiere(listeMatieresINGE2);
+                    if(annee == 3 ) choixMatiere(listeMatieresINGE3);
                     System.out.print("Entrez la note ecrite : ");
                     Matiere.hashMapMatieres.get(key).get(index).setNotEcrite(sc.nextDouble());
+                    break;
                 case 4:
-                    index = choixMatiere();
+                    annee = hashMapEtudiants.get(key).getAnnee();
+                    if(annee == 1 ) choixMatiere(listeMatieresINGE1);
+                    if(annee == 2 ) choixMatiere(listeMatieresINGE2);
+                    if(annee == 3 ) choixMatiere(listeMatieresINGE3);
                     System.out.print("Entrez la note orale : ");
                     Matiere.hashMapMatieres.get(key).get(index).setNoteOrale(sc.nextDouble());
                     break;
@@ -288,7 +314,7 @@ public class APP4 {
             }
         }
     }
-    public static int choixMatiere(){
+    public static int choixMatiere(String [] listeMatieres){
         for (String nomMatiere : Matiere.listeMatieres)
             System.out.println(nomMatiere + " - " + Arrays.asList(Matiere.listeMatieres).indexOf(nomMatiere));
         System.out.println("Entrez le numero de matiere a modifier : ");
