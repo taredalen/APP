@@ -241,9 +241,12 @@ public class APP4 {
                 Etudiant etudiant = new Etudiant(nom, prenom, 0);
                 hashMapEtudiants.put(key, etudiant);
                 break;
-            } if (reponse.equals("1")) {
+            } if (reponse.equals("1")) { 
+                double noteProjet;
                 System.out.print("Entrez la note projet obtenue : ");
-                double noteProjet = sc.nextDouble();
+                while ((noteProjet = sc.nextDouble()) < 0 || noteProjet > 20) {
+                    System.out.print("Entrez la note projet obtenue : ");
+                }
                 EtudiantDerniere etudiant = new EtudiantDerniere(nom, prenom, 0, noteProjet);
                 hashMapEtudiants.put(key, etudiant);
                 break;
