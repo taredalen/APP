@@ -40,9 +40,12 @@ class Etudiant {
     }
 
     public static void listeValidationAnnee(){
-        int nombreEtudiants  = 0 ;
-        for (Integer key : APP4.hashMapEtudiants.keySet())
-            if (APP4.hashMapEtudiants.get(key).getMoyenne() >= 10) nombreEtudiants++;
+        int nombreEtudiants = 0;
+        for (Integer key : APP4.hashMapEtudiants.keySet()){
+            if (APP4.hashMapEtudiants.get(key).getMoyenne() >= 10) {
+                nombreEtudiants++;
+            }
+        }
         System.out.println("Nombre d'etudiants qui valident l'annee    : " + nombreEtudiants);
         System.out.println("Nombre de ceux qui ne valident pas l'annee : " + (APP4.hashMapEtudiants.size() - nombreEtudiants));
     }
@@ -173,7 +176,6 @@ public class APP4 {
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
                         System.out.println("-------------- AFFICHER ETUDIANT --------------");
-                        hashMapEtudiants.get(key).moyenneEtudiant(key);
                         hashMapEtudiants.get(key).afficherEtudiant();
                         System.out.println("-----------------------------------------------");
                         Matiere.afficherMatiere(key);
@@ -245,12 +247,14 @@ public class APP4 {
                 Matiere.listeMatieres(key, listeMatieresINGE1);
                 Etudiant etudiant = new Etudiant(listeMatieresINGE1,nom, prenom, 0);
                 hashMapEtudiants.put(key, etudiant);
+                hashMapEtudiants.get(key).moyenneEtudiant(key);
                 break;
             }
             if (reponse.equals("2")) {
                 Matiere.listeMatieres(key, listeMatieresINGE2);
                 Etudiant etudiant = new Etudiant(listeMatieresINGE2,nom, prenom, 0);
                 hashMapEtudiants.put(key, etudiant);
+                hashMapEtudiants.get(key).moyenneEtudiant(key);
                 break;
             }
             if (reponse.equals("3")) {
@@ -262,6 +266,7 @@ public class APP4 {
                 }
                 EtudiantDerniere etudiant = new EtudiantDerniere(listeMatieresINGE3, nom, prenom, 0, noteProjet);
                 hashMapEtudiants.put(key, etudiant);
+                hashMapEtudiants.get(key).moyenneEtudiant(key);
                 break;
             }
         } while (true) ;
