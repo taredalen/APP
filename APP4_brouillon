@@ -57,7 +57,6 @@ class Etudiant {
     public double getMoyenne() { return moyenne; }
     public ArrayList<Matiere> getMatieres() { return matieres; }
 
-
     public void setNom(String nom) { this.nom = nom; }
     public void setPrenom(String prenom) { this.prenom = prenom; }
 }
@@ -66,7 +65,7 @@ class Etudiant {
 class EtudiantDerniere extends Etudiant {
     private final double noteProjet;
 
-    public EtudiantDerniere(String niveau, String nom, String prenom, double moyenne, double noteProjet, ArrayList<Matiere> matieres) {
+    public EtudiantDerniere(String niveau, String nom, String prenom, double moyenne, ArrayList<Matiere> matieres, double noteProjet) {
         super(niveau, nom, prenom, moyenne, matieres);
         this.noteProjet = noteProjet;
     }
@@ -146,10 +145,10 @@ public class APP4 {
     public static HashMap<Integer, Etudiant> hashMapEtudiants = new HashMap<>();
 
     public static Scanner sc = new Scanner(System.in);
-    private static int key = 0;
-    
-    static public String[] listeMatieresINGE1 = {"Math", "Physi", "Program", "Electro"};
-    static public String[] listeMatieresINGE2 = {"Python", "Math", "Anglais", "BDD"};
+    public static int key, keyInit = 0;
+
+    static public String[] listeMatieresINGE1 = {"Math"};//{"Math", "Physi", "Program", "Electro"};
+    static public String[] listeMatieresINGE2 = {"Python", "Math", "Anglais", "BDD"}; //{"Python", "Math", "Anglais", "BDD"};
     static public String[] listeMatieresINGE3 = {"Robotique", "IA", "ML"};
 
     public static void main(String[] args) {
@@ -174,35 +173,41 @@ public class APP4 {
                     case 1:
                         System.out.print("\n--------------- NOUVEAU ETUDIANT --------------\n");
                         nouveauEtudiant();
-                        System.out.println("--------- ETUDIANT ENREGISTRE SOUS N°" + key + " --------\n");
+                        System.out.println("--------- ETUDIANT ENREGISTRE SOUS N°" + keyInit + " --------\n");
                         break;
                     case 2:
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
-                        System.out.println("-------------- AFFICHER ETUDIANT --------------");
-                        hashMapEtudiants.get(key).afficherEtudiant();
-                        System.out.println("-----------------------------------------------");
-                        Matiere.afficherMatiere(key);
-                        System.out.println("-----------------------------------------------\n");
+                        if (!hashMapEtudiants.containsKey(key)) System.out.println("Le numero est incorrect!");
+                        else {
+                            System.out.println("-------------- AFFICHER ETUDIANT --------------");
+                            hashMapEtudiants.get(key).afficherEtudiant();
+                            System.out.println("-----------------------------------------------");
+                            Matiere.afficherMatiere(key);
+                            System.out.println("-----------------------------------------------\n");
+                        }
                         break;
                     case 3:
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
-                        modifierEtudiant(key);
+                        if(!hashMapEtudiants.containsKey(key)) System.out.println("Le numero est incorrect!");
+                        else modifierEtudiant(key);
                         break;
                     case 4:
                         System.out.println("\n------------ SUPPRESSION ETUDIANT -------------");
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
                         Etudiant etudiant = APP4.hashMapEtudiants.get(key);
-                        Etudiant.supprimerEtudiant(etudiant, key);
+                        if(!hashMapEtudiants.containsKey(key)) System.out.println("Le numero est incorrect!");
+                        else Etudiant.supprimerEtudiant(etudiant, key);
                         System.out.println("-----------------------------------------------\n");
                         break;
                     case 5:
                         System.out.println("-------------- MOYENNE ETUDIANT ---------------");
                         System.out.print("Entrez le numero d'etudiant : ");
                         key = sc.nextInt();
-                        System.out.println("Moyenne d'etudiant : " + hashMapEtudiants.get(key).moyenneEtudiant(key));
+                        if(!hashMapEtudiants.containsKey(key)) System.out.println("Le numero est incorrect!");
+                        else System.out.println("Moyenne d'etudiant : " + hashMapEtudiants.get(key).moyenneEtudiant(key));
                         System.out.println("-----------------------------------------------\n");
                         break;
                     case 6:
@@ -233,13 +238,13 @@ public class APP4 {
                         System.out.println("Option incorrecte!");
                         break;
                 }
-            } catch (Exception e) {
-                System.out.print("Erreur! Veuillez reessayer.\n");}
+            } catch (Exception e) { System.out.print("Erreur! Veuillez reessayer.\n");}
         }
     }
 
     public static void nouveauEtudiant() {
-        key++;
+        keyInit ++;
+
         System.out.print("Entrez le nom : ");
         String nom = sc.next();
         System.out.print("Entrez le prenom : ");
@@ -251,15 +256,15 @@ public class APP4 {
             if (niveau.equals("INGE1")) {
                 ArrayList<Matiere> matieres = Matiere.remplirNotes(listeMatieresINGE1);
                 Etudiant etudiant = new Etudiant(niveau ,nom, prenom, 0, matieres);
-                hashMapEtudiants.put(key, etudiant);
-                hashMapEtudiants.get(key).moyenneEtudiant(key); 
+                hashMapEtudiants.put(keyInit, etudiant);
+                hashMapEtudiants.get(keyInit).moyenneEtudiant(keyInit); 
                 break;
             }
             if (niveau.equals("INGE2")) {
                 ArrayList<Matiere> matieres = Matiere.remplirNotes(listeMatieresINGE2);
                 Etudiant etudiant = new Etudiant(niveau ,nom, prenom, 0, matieres);
-                hashMapEtudiants.put(key, etudiant);
-                hashMapEtudiants.get(key).moyenneEtudiant(key);
+                hashMapEtudiants.put(keyInit, etudiant);
+                hashMapEtudiants.get(keyInit).moyenneEtudiant(keyInit);
                 break;
             }
             if (niveau.equals("INGE3")) {
@@ -269,9 +274,9 @@ public class APP4 {
                 while ((noteProjet = sc.nextDouble()) < 0 || noteProjet > 20) {
                     System.out.print("Entrez la note projet obtenue : ");
                 }
-                EtudiantDerniere etudiant = new EtudiantDerniere(niveau, nom, prenom, 0, noteProjet, matieres);
-                hashMapEtudiants.put(key, etudiant);
-                hashMapEtudiants.get(key).moyenneEtudiant(key);
+                EtudiantDerniere etudiant = new EtudiantDerniere(niveau, nom, prenom,0, matieres, noteProjet);
+                hashMapEtudiants.put(keyInit, etudiant);
+                hashMapEtudiants.get(keyInit).moyenneEtudiant(keyInit);
                 break;
             }
         } while(true);
