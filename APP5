@@ -1,0 +1,185 @@
+import java.awt.*;
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import javax.swing.border.LineBorder;
+
+class Menu extends JFrame {
+    JToolBar toolBar = new JToolBar();
+
+    public Menu() {
+        super("⚚");
+        super.setBackground(Color.CYAN);
+        super.setSize(400, 300);
+        super.setDefaultCloseOperation( EXIT_ON_CLOSE );
+
+        JMenuBar menuBar = new JMenuBar();
+
+        toolBar.add(Box.createHorizontalGlue());
+        toolBar.setBorder(new LineBorder(Color.CYAN));
+        super.add(toolBar, BorderLayout.PAGE_START);
+
+        menuBar.add(Client());
+        menuBar.add(Medicaments());
+        menuBar.add(Achat());
+        menuBar.add(Archives());
+        menuBar.add(Exit());
+
+        super.setJMenuBar(menuBar);
+        super.setVisible(true);
+    }
+
+    private JMenu Client() {
+        JMenu menu = new JMenu("Client");
+
+        ImageIcon ajouterIcon = new ImageIcon(Menu.class.getResource("icons/add.png"));
+        ImageIcon modifierIcon = new ImageIcon(Menu.class.getResource("icons/edit.png"));
+        ImageIcon supprimerIcon = new ImageIcon(Menu.class.getResource("icons/delete.png"));
+        ImageIcon chercherIcon = new ImageIcon(Menu.class.getResource("icons/chercher.png"));
+
+        Action ajouter = new AbstractAction("Nouveau", ajouterIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Ajouter");
+            }
+        };
+
+        Action modifier = new AbstractAction("Modifier", modifierIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("Modifier");
+            }
+        };
+
+        Action supprimer = new AbstractAction("Supprimer",supprimerIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("supprimer");
+            }
+        };
+
+        Action chercher = new AbstractAction("Chercher", chercherIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("chercher");
+            }
+        };
+
+        toolBar.add(ajouter);
+        toolBar.add(modifier);
+        toolBar.add(supprimer);
+        toolBar.add(chercher);
+
+        menu.add(new JMenuItem(ajouter));
+        menu.addSeparator();
+        menu.add(new JMenuItem(modifier));
+        menu.addSeparator();
+        menu.add(new JMenuItem(supprimer));
+        menu.addSeparator();
+        menu.add(new JMenuItem(chercher));
+
+
+        return menu;
+    }
+
+    private JMenu Medicaments() {
+        JMenu menu = new JMenu("Medicaments");
+        ImageIcon approvisionnerIcon = new ImageIcon(Menu.class.getResource("icons/capsule.png"));
+        ImageIcon ajouterIcon = new ImageIcon(Menu.class.getResource("icons/add2.png"));
+        ImageIcon chercherIcon = new ImageIcon(Menu.class.getResource("icons/search.png"));
+
+        Action approvisionner = new AbstractAction("Approvisionner", approvisionnerIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("approvisionner");
+            }
+        };
+
+        Action ajouter = new AbstractAction("Ajouter", ajouterIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("approvisionner");
+            }
+        };
+
+        Action rechercher = new AbstractAction("Rechercher", chercherIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("rechercher");
+            }
+        };
+
+        toolBar.add(ajouter);
+        toolBar.add(rechercher);
+        toolBar.add(approvisionner);
+        menu.add(new JMenuItem(ajouter));
+        menu.add(new JMenuItem(rechercher));
+        menu.add(new JMenuItem(approvisionner));
+        return menu;
+    }
+
+    private JMenu Achat() {
+        JMenu menu = new JMenu("Achat");
+        ImageIcon icon = new ImageIcon(Menu.class.getResource("icons/euro.png"));
+
+        Action achat = new AbstractAction("Effectuer", icon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("acheter");
+            }
+        };
+
+        toolBar.add(achat);
+        menu.add(new JMenuItem(achat));
+        return menu;
+    }
+
+    private JMenu Archives() {
+        JMenu menu = new JMenu("Archives");
+        ImageIcon clientsIcon = new ImageIcon(Menu.class.getResource("icons/archives.png"));
+        ImageIcon medicamentsIcon = new ImageIcon(Menu.class.getResource("icons/archives1.png"));
+
+
+        Action clients = new AbstractAction("Clients", clientsIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("clients ");
+            }
+        };
+
+        Action medicaments = new AbstractAction("Medicaments", medicamentsIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("med");
+            }
+        };
+
+        toolBar.add(clients);
+        toolBar.add(medicaments);
+        menu.add(new JMenuItem(clients));
+        menu.add(new JMenuItem(medicaments));
+        return menu;
+    }
+
+    private JMenu Exit() {
+        JMenu menu = new JMenu("Exit");
+        ImageIcon exitIcon = new ImageIcon(Menu.class.getResource("icons/exit.png"));
+
+        Action exit = new AbstractAction("Exit", exitIcon) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.println("chercher");
+                System.exit(0);
+            }
+        };
+
+        toolBar.add(exit);
+        menu.add(new JMenuItem(exit));
+        return menu;
+    }
+
+    public static void main(String[] args) {
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        new Menu();
+    }
+}
+
