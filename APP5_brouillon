@@ -5,6 +5,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
+import java.util.HashMap;
 import javax.swing.text.MaskFormatter;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
@@ -432,3 +433,73 @@ class APP5 extends JFrame {
         }
     }
 }
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class Client {
+    public String numeroSecu,nom, prenom,adresse, numero;
+    public static HashMap<String, Client> hashMapClients = new HashMap<>();
+
+    public Client(String numeroSecu, String nom, String prenom, String adresse, String numero) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.adresse = adresse;
+        this.numero = numero;
+        this.numeroSecu = numeroSecu;
+    }
+
+    public void afficherEtudiant() {
+        // TODO
+    }
+
+
+    public static void supprimerEtudiant() {
+        //TODO
+    }
+
+    public static void listEtudiants() {
+        //TODO
+    }
+
+    public String getNumeroSecu() { return numeroSecu; }
+    public String getAdresse() { return adresse; }
+    public String getPrenom() { return prenom;  }
+    public String getNumero() { return numero; }
+    public String getNom() { return nom; }
+
+    public void setNom(String nom) { this.nom = nom; }
+    public void setNumero(String numero){this.numero = numero;}
+    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public void setAdresse(String adresse) { this.adresse = adresse; }
+    public void setNumeroSecu(String numeroSecu){this.numeroSecu = numeroSecu;}
+}
+
+
+class Medicament {
+    public String reference, libelle, description, qualite, prix;
+    public static HashMap<String, Medicament> hashMapMedicaments = new HashMap<>();
+
+    public Medicament(String reference, String libelle, String description, String qualite, String prix) {
+        this.reference = reference;
+        this.libelle = libelle;
+        this.description = description;
+        this.qualite = qualite;
+        this.prix = prix;
+    }
+
+    public String getReference() { return reference; }
+    public String getLibelle() { return libelle; }
+    public String getDescription() { return description;  }
+    public String getQualite() { return qualite; }
+    public String getPrix() { return prix; }
+
+    public void setReference(String reference) { this.reference = reference; }
+    public void setLibelle(String numero){this.libelle = libelle;}
+    public void setDescription(String prenom) { this.description = description; }
+    public void setQualite(String adresse) { this.qualite = qualite; }
+    public void setPrix(String numeroSecu){this.prix = prix;}
+}
+
+
