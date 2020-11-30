@@ -1,11 +1,10 @@
 import java.awt.*;
+import javax.swing.*;
 import java.util.HashMap;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
-import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.MaskFormatter;
@@ -13,7 +12,11 @@ import javax.swing.text.MaskFormatter;
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 
 //----------------------------------------------------------------------------------------------------------------------
-// MENU ARCHIVES => FAIT
+/**
+ * MenuArchives ------------- 2/2
+ * MenuClient --------------- 4/4
+ * MenuMedicaments ----------
+ */
 //----------------------------------------------------------------------------------------------------------------------
 
 class Interface extends JFrame {
@@ -98,39 +101,48 @@ class Interface extends JFrame {
 //----------------------------------------------------------------------------------------------------------------------
 class MenuClient extends JFrame {
 
-    JMenu menu = new JMenu("Client");
-
     public JMenu main() {
+        JMenu menu = new JMenu("Client");
+
         Interface.panel.repaint();
         Interface.tabbedPane.removeAll();
 
         Action ajouter = new AbstractAction("Nouveau", new ImageIcon(Interface.class.getResource("icons/add.png"))) {
             public void actionPerformed(ActionEvent e) {
-                Interface.tabbedPane.addTab("Nouveau client", profilClient("nouveau","null"));
+                Interface.tabbedPane.addTab("Nouveau client", panelClient("nouveau","null"));
             }
         };
+
         Action modifier = new AbstractAction("Modifier", new ImageIcon(Interface.class.getResource("icons/edit.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String key = VerificationCle();
                 if(key.equals("null")){
-                    int index = Interface.tabbedPane.getTabCount();;
+                    int index = Interface.tabbedPane.getSelectedIndex();;
                     if (index >= 0) Interface.tabbedPane.removeTabAt(index);
-                } else Interface.tabbedPane.addTab("Modifier client", profilClient("modifier", key));
+                } else Interface.tabbedPane.addTab("Modifier client", panelClient("modifier", key));
             }
         };
+
         Action supprimer = new AbstractAction("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("supprimer");
-                Interface.tabbedPane.addTab("Supprimer client", supprimerClient());
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();;
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Supprimer client", panelClient("supprimer", key));
             }
         };
+
         Action chercher = new AbstractAction("Chercher", new ImageIcon(Interface.class.getResource("icons/chercher.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.out.println("chercher");
-                Interface.tabbedPane.addTab("Chercher client", chercherClient());
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();;
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Chercher client", panelClient("chercher", key));
             }
         };
 
@@ -150,14 +162,15 @@ class MenuClient extends JFrame {
 
         return menu;
     }
-
-    private JPanel profilClient(String mode, String key){
+    //------------------------------------------------------------------------------------------------------------------
+    private JPanel panelClient(String mode, String key){
 
         JFormattedTextField numeroTel = null, numeroSecu = null;
 
         JPanel panel = BoxLayoutUtils.createVerticalPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
 
+        final var b = mode.equals("modifier") || mode.equals("supprimer") || mode.equals("chercher");
         try {
             MaskFormatter phoneFormatter = new MaskFormatter("##########");
             MaskFormatter numFormatter = new MaskFormatter("#############");
@@ -167,7 +180,7 @@ class MenuClient extends JFrame {
             numeroTel = new JFormattedTextField(phoneFormatter);
             numeroTel.setColumns(10);
             numeroSecu.setColumns(10);
-            if(mode.equals("modifier")) {
+            if(b) {
                 numeroSecu.setValue(Client.hashMapClients.get(key).getNumeroSecu());
                 numeroTel.setValue(Client.hashMapClients.get(key).getNumero());
             }
@@ -195,7 +208,7 @@ class MenuClient extends JFrame {
         JTextField prenom = new JTextField(10);
         JTextField adresse = new JTextField(10);
 
-        if(mode.equals("modifier")) {
+        if(b) {
             nom.setText(Client.hashMapClients.get(key).getNom());
             prenom.setText(Client.hashMapClients.get(key).getPrenom());
             adresse.setText(Client.hashMapClients.get(key).getAdresse());
@@ -212,15 +225,16 @@ class MenuClient extends JFrame {
 
         JButton buttonEnregistrerN = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
         JButton buttonEnregistrerM = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonSupprimer = new JButton("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png")));
+
         JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
 
         JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
 
-        if(mode.equals("modifier")) {
-            buttonBox.add(buttonEnregistrerM);
-        } else buttonBox.add(buttonEnregistrerN);
-
-        buttonBox.add(buttonAnnuler);
+        if(mode.equals("nouveau")) buttonBox.add(buttonEnregistrerN);
+        if(mode.equals("modifier")) buttonBox.add(buttonEnregistrerM);
+        if(mode.equals("supprimer"))  buttonBox.add(buttonSupprimer);
+        if(!mode.equals("chercher"))  buttonBox.add(buttonAnnuler);
 
         panel.add(nomBox);
         panel.add(Box.createVerticalStrut(20));
@@ -237,6 +251,7 @@ class MenuClient extends JFrame {
         JFormattedTextField finalNumeroTel = numeroTel;
         JFormattedTextField finalNumeroSecu = numeroSecu;
 
+
         buttonEnregistrerN.addActionListener(arg0 -> {
             if(!finalNumeroSecu.equals("0000000000000")) {
                 Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText());
@@ -247,6 +262,7 @@ class MenuClient extends JFrame {
                     " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
             }
         });
+
         buttonEnregistrerM.addActionListener(arg0 -> {
             Client.hashMapClients.get(key).setNom(nom.getText());
             Client.hashMapClients.get(key).setPrenom(prenom.getText());
@@ -257,6 +273,17 @@ class MenuClient extends JFrame {
             JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
                     " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
         });
+
+        buttonSupprimer.addActionListener(arg0 -> {
+            int reponse = JOptionPane.showConfirmDialog(null, "Supprimer ce profil?",
+                    "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, new ImageIcon(Interface.class.getResource("icons/att.png")));
+            if(reponse == 0) {
+                Client.hashMapClients.remove(key);
+                JOptionPane.showMessageDialog(null, "Profil supprime avec succes!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/info64.png")));
+            } else Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        });
+
         buttonAnnuler.addActionListener(arg0 -> {
             int select = Interface.tabbedPane.getSelectedIndex();
             if (select >= 0) Interface.tabbedPane.removeTabAt(select);
@@ -265,70 +292,17 @@ class MenuClient extends JFrame {
         pack();
         return panel;
     }
-
-    private JPanel modifierClient(String key){
-
-        JPanel panel = new JPanel();
-
-        panel.setLayout(new FlowLayout());
-        panel.setBorder(BorderFactory.createLineBorder(Color.lightGray));
-
-        JFormattedTextField numeroTel = null, numeroSecu = null;
-
-        Box verticalBox = Box.createVerticalBox();
-
-        try {
-            MaskFormatter phoneFormatter = new MaskFormatter("##########");
-            MaskFormatter numFormatter = new MaskFormatter("#############");
-            phoneFormatter.setPlaceholderCharacter('0');
-            numFormatter.setPlaceholderCharacter('0');
-            numeroSecu = new JFormattedTextField(numFormatter);
-            numeroTel = new JFormattedTextField(phoneFormatter);
-            numeroTel.setColumns(16);
-            numeroSecu.setColumns(16);
-            numeroSecu.setValue(Client.hashMapClients.get(key).getNumeroSecu());
-            numeroTel.setValue(Client.hashMapClients.get(key).getNumero());
-
-        } catch (Exception e) { e.printStackTrace(); }
-
-
-        JTextField nom = new JTextField(Client.hashMapClients.get(key).getNom(),16);
-        JTextField prenom = new JTextField(Client.hashMapClients.get(key).getPrenom(),16);
-        JTextField adresse = new JTextField(Client.hashMapClients.get(key).getAdresse(),16);
-
-        verticalBox.add(nom);
-        verticalBox.add(prenom);
-        verticalBox.add(adresse);
-        verticalBox.add(numeroTel);
-        verticalBox.add(numeroSecu);
-
-        panel.add(verticalBox);
-
-        JButton buttonEnregistrer = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
-        JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
-
-
-        return panel;
-    }
-
-    private Component supprimerClient(){
-        //TODO
-        return null;
-    }
-    private Component chercherClient(){
-        return null;
-    }
+    //------------------------------------------------------------------------------------------------------------------
     private String VerificationCle(){
         ImageIcon icon1 = new ImageIcon(Interface.class.getResource("icons/key.png"));
         ImageIcon icon2 = new ImageIcon(Interface.class.getResource("icons/erreur.png"));
 
-        String key = (String) JOptionPane.showInputDialog(null,"Entrez le N°Secu de client:",null, QUESTION_MESSAGE , icon1,null,null);
+        String key = (String) JOptionPane.showInputDialog(null,"Entrez le N°Secu de client :",null, QUESTION_MESSAGE , icon1,null,null);
 
         while(true) {
             if(Client.hashMapClients.containsKey(key)) return key;
-            if(!Client.hashMapClients.containsKey(key)) {
-                key = (String) JOptionPane.showInputDialog(null,"Entrez le N°Secu de client:",null, QUESTION_MESSAGE , icon2,null,null);
-            } if(key.equals("null")) return "null";
+            if(key.equals("null")) return "null";
+            else key = (String) JOptionPane.showInputDialog(null,"N° icorrect! Reessayer :",null, QUESTION_MESSAGE , icon2,null,null);
         }
     }
 }
@@ -377,18 +351,17 @@ class MenuArchives extends JFrame {
         Action clients = new AbstractAction("Clients", new ImageIcon(Interface.class.getResource("icons/archives.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
-
-                //panel.add(new JScrollPane(listeClients()));
                 Interface.tabbedPane.addTab("Liste clients", new JScrollPane(listeClients())); //  <html><i>text cursive
-
             }
         };
+        //--------------------------------------------------------------------------------------------------------------
         Action medicaments = new AbstractAction("Medicaments", new ImageIcon(Interface.class.getResource("icons/archives1.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Interface.tabbedPane.addTab("Liste medicaments", new JScrollPane(listeMedicaments()));
             }
-        };
+        }; //-----------------------------------------------------------------------------------------------------------
+
 
         Interface.toolBar.add(clients);
         Interface.toolBar.add(medicaments);
@@ -479,7 +452,6 @@ class APP5 extends JFrame {
     }
 }
 
-//----------------------------------------------------------------------------------------------------------------------
 
 
 class Client {
@@ -497,7 +469,6 @@ class Client {
     public void afficherEtudiant() {
         // TODO
     }
-
 
     public static void supprimerEtudiant() {
         //TODO
@@ -545,4 +516,6 @@ class Medicament {
     public void setQualite(String adresse) { this.qualite = qualite; }
     public void setPrix(String numeroSecu){this.prix = prix;}
 }
+
+
 
