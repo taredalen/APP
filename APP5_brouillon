@@ -1,11 +1,13 @@
 import java.awt.*;
+import java.util.HashMap;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
-import java.util.HashMap;
 import javax.swing.text.MaskFormatter;
 
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
@@ -24,7 +26,7 @@ class Interface extends JFrame {
     public Interface() {
         super("⚚");
         super.setBackground(Color.CYAN);
-        super.setSize(400, 400);
+        super.setSize(400, 500);
         super.setLocationRelativeTo (null);
         super.setDefaultCloseOperation( EXIT_ON_CLOSE );
 
@@ -45,9 +47,19 @@ class Interface extends JFrame {
         super.add(toolBar, BorderLayout.PAGE_START);
         super.getContentPane().add(panel);
 
+        JButton buttonFermer = new JButton("", new ImageIcon(Interface.class.getResource("icons/del.png")));
+        panel.add(buttonFermer,BorderLayout.NORTH);
+
+        buttonFermer.addMouseListener(new MouseAdapter() { // TODO  ML reajit sur toute label non seulement l'icone, il faut le modifier + tard
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int select = Interface.tabbedPane.getSelectedIndex();
+                if (select >= 0) Interface.tabbedPane.removeTabAt(select);
+            }
+        });
+
         super.setVisible(true);
     }
-
     //------------------------------------------------------------------------------------------------------------------
     public JMenu info() {
         JMenu menu = new JMenu("Info");
@@ -94,7 +106,7 @@ class MenuClient extends JFrame {
 
         Action ajouter = new AbstractAction("Nouveau", new ImageIcon(Interface.class.getResource("icons/add.png"))) {
             public void actionPerformed(ActionEvent e) {
-                Interface.tabbedPane.addTab("Nouveau client", nouveauClient());
+                Interface.tabbedPane.addTab("Nouveau client", profilClient("nouveau","null"));
             }
         };
         Action modifier = new AbstractAction("Modifier", new ImageIcon(Interface.class.getResource("icons/edit.png"))) {
@@ -104,7 +116,7 @@ class MenuClient extends JFrame {
                 if(key.equals("null")){
                     int index = Interface.tabbedPane.getTabCount();;
                     if (index >= 0) Interface.tabbedPane.removeTabAt(index);
-                } else Interface.tabbedPane.addTab("Modifier client", modifierClient(key));
+                } else Interface.tabbedPane.addTab("Modifier client", profilClient("modifier", key));
             }
         };
         Action supprimer = new AbstractAction("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png"))) {
@@ -119,7 +131,6 @@ class MenuClient extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 System.out.println("chercher");
                 Interface.tabbedPane.addTab("Chercher client", chercherClient());
-
             }
         };
 
@@ -140,7 +151,7 @@ class MenuClient extends JFrame {
         return menu;
     }
 
-    private JPanel nouveauClient(){
+    private JPanel profilClient(String mode, String key){
 
         JFormattedTextField numeroTel = null, numeroSecu = null;
 
@@ -156,8 +167,11 @@ class MenuClient extends JFrame {
             numeroTel = new JFormattedTextField(phoneFormatter);
             numeroTel.setColumns(10);
             numeroSecu.setColumns(10);
+            if(mode.equals("modifier")) {
+                numeroSecu.setValue(Client.hashMapClients.get(key).getNumeroSecu());
+                numeroTel.setValue(Client.hashMapClients.get(key).getNumero());
+            }
         } catch (Exception e) { e.printStackTrace(); }
-
 
         JPanel nomBox = BoxLayoutUtils.createHorizontalPanel();
         JPanel prenomBox = BoxLayoutUtils.createHorizontalPanel();
@@ -181,6 +195,12 @@ class MenuClient extends JFrame {
         JTextField prenom = new JTextField(10);
         JTextField adresse = new JTextField(10);
 
+        if(mode.equals("modifier")) {
+            nom.setText(Client.hashMapClients.get(key).getNom());
+            prenom.setText(Client.hashMapClients.get(key).getPrenom());
+            adresse.setText(Client.hashMapClients.get(key).getAdresse());
+        }
+
         nomBox.add(nom);
         prenomBox.add(prenom);
         adresseBox.add(adresse);
@@ -190,12 +210,16 @@ class MenuClient extends JFrame {
         //BoxLayoutUtils.setGroupAlignmentX(new JComponent[] { nomBox, prenomBox, adresseBox, numeroTelBox, numeroSecuBox }, Component.LEFT_ALIGNMENT);
         //BoxLayoutUtils.setGroupAlignmentY(new JComponent[] { nom, prenom, adresse, numeroTel, numeroSecu}, Component.CENTER_ALIGNMENT);
 
-        JButton buttonEnregistrer = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonEnregistrerN = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonEnregistrerM = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
         JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
 
         JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
 
-        buttonBox.add(buttonEnregistrer);
+        if(mode.equals("modifier")) {
+            buttonBox.add(buttonEnregistrerM);
+        } else buttonBox.add(buttonEnregistrerN);
+
         buttonBox.add(buttonAnnuler);
 
         panel.add(nomBox);
@@ -213,22 +237,32 @@ class MenuClient extends JFrame {
         JFormattedTextField finalNumeroTel = numeroTel;
         JFormattedTextField finalNumeroSecu = numeroSecu;
 
-        buttonEnregistrer.addActionListener(arg0 -> {
-            if(nom.getText().length() > 0) {
+        buttonEnregistrerN.addActionListener(arg0 -> {
+            if(!finalNumeroSecu.equals("0000000000000")) {
                 Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText());
                 Client.hashMapClients.put(finalNumeroSecu.getText(), client);
                 JOptionPane.showMessageDialog(null, "Client enregistré avec succès!",
-                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/synchro.png")));
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
             } else { JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
                     " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
             }
         });
+        buttonEnregistrerM.addActionListener(arg0 -> {
+            Client.hashMapClients.get(key).setNom(nom.getText());
+            Client.hashMapClients.get(key).setPrenom(prenom.getText());
+            Client.hashMapClients.get(key).setAdresse(adresse.getText());
+            Client.hashMapClients.get(key).setNumero(finalNumeroTel.getText());
+            Client.hashMapClients.get(key).setNumeroSecu(finalNumeroSecu.getText());
 
+            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+        });
         buttonAnnuler.addActionListener(arg0 -> {
             int select = Interface.tabbedPane.getSelectedIndex();
             if (select >= 0) Interface.tabbedPane.removeTabAt(select);
         });
 
+        pack();
         return panel;
     }
 
@@ -257,6 +291,7 @@ class MenuClient extends JFrame {
 
         } catch (Exception e) { e.printStackTrace(); }
 
+
         JTextField nom = new JTextField(Client.hashMapClients.get(key).getNom(),16);
         JTextField prenom = new JTextField(Client.hashMapClients.get(key).getPrenom(),16);
         JTextField adresse = new JTextField(Client.hashMapClients.get(key).getAdresse(),16);
@@ -268,6 +303,11 @@ class MenuClient extends JFrame {
         verticalBox.add(numeroSecu);
 
         panel.add(verticalBox);
+
+        JButton buttonEnregistrer = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
+
+
         return panel;
     }
 
@@ -279,7 +319,6 @@ class MenuClient extends JFrame {
         return null;
     }
     private String VerificationCle(){
-
         ImageIcon icon1 = new ImageIcon(Interface.class.getResource("icons/key.png"));
         ImageIcon icon2 = new ImageIcon(Interface.class.getResource("icons/erreur.png"));
 
@@ -334,29 +373,20 @@ class MenuArchives extends JFrame {
     public JMenu main() {
 
         JMenu menu = new JMenu("Archives");
-        int index = Interface.tabbedPane.getTabCount();
-        JLabel label = new JLabel("Info listes");
-        label.setIcon(new ImageIcon(Interface.class.getResource("icons/del.png")));
 
-        label.addMouseListener(new MouseAdapter() { // TODO  ML reajit sur toute label non seulement l'icone, il faut le modifier + tard
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                int select = Interface.tabbedPane.getSelectedIndex();
-                if (select >= 0) Interface.tabbedPane.removeTabAt(select);
-            }
-        });
         Action clients = new AbstractAction("Clients", new ImageIcon(Interface.class.getResource("icons/archives.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
+
+                //panel.add(new JScrollPane(listeClients()));
                 Interface.tabbedPane.addTab("Liste clients", new JScrollPane(listeClients())); //  <html><i>text cursive
-                Interface.tabbedPane.setTabComponentAt(index, label);
+
             }
         };
         Action medicaments = new AbstractAction("Medicaments", new ImageIcon(Interface.class.getResource("icons/archives1.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Interface.tabbedPane.addTab("Liste medicaments", new JScrollPane(listeMedicaments()));
-                Interface.tabbedPane.setTabComponentAt(index, label);
             }
         };
 
@@ -422,21 +452,35 @@ class MenuAchat extends JFrame {
     }
 }
 //----------------------------------------------------------------------------------------------------------------------
-
+class BoxLayoutUtils {
+    public static void setGroupAlignmentX(JComponent[] components, float alignment) {
+        for (int i = 0; i < components.length; i++)
+            components[i].setAlignmentX(alignment);
+    }
+    public static void setGroupAlignmentY(JComponent[] components, float alignment) {
+        for (int i = 0; i < components.length; i++)
+            components[i].setAlignmentY(alignment);
+    }
+    public static JPanel createVerticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+    public static JPanel createHorizontalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        return panel;
+    }
+}
 class APP5 extends JFrame {
     public static void main(String[] args) {
-        try {
-            JFrame.setDefaultLookAndFeelDecorated(true);
-            new Interface();
-        } catch (NullPointerException e) {
-            System.out.print("Erreur! Veuillez reessayer.\n");
-        }
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        new Interface();
     }
 }
 
-
-
 //----------------------------------------------------------------------------------------------------------------------
+
 
 class Client {
     public String numeroSecu,nom, prenom,adresse, numero;
@@ -501,5 +545,4 @@ class Medicament {
     public void setQualite(String adresse) { this.qualite = qualite; }
     public void setPrix(String numeroSecu){this.prix = prix;}
 }
-
 
