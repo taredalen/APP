@@ -1,5 +1,4 @@
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -13,8 +12,6 @@ import javax.swing.text.MaskFormatter;
 
 import java.text.NumberFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-
 import static javax.swing.JOptionPane.QUESTION_MESSAGE;
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -177,8 +174,6 @@ class MenuClient extends JFrame {
 
         JFormattedTextField numeroTel = null, numeroSecu = null;
 
-        //JTextField listeAchat = null;
-
         JPanel panel = createVerticalPanel();
         panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
 
@@ -193,8 +188,6 @@ class MenuClient extends JFrame {
             numeroTel.setColumns(10);
             numeroSecu.setColumns(10);
             numeroSecu.setForeground(Color.BLUE);
-           // listeAchat = new JTextField(String.valueOf(Client.hashMapClients.get(key).getListeAchat()));
-
             if(b) {
                 numeroSecu.setValue(Client.hashMapClients.get(key).getNumeroSecu());
                 numeroTel.setValue(Client.hashMapClients.get(key).getNumero());
@@ -206,15 +199,13 @@ class MenuClient extends JFrame {
         JPanel adresseBox = createHorizontalPanel();
         JPanel numeroTelBox = createHorizontalPanel();
         JPanel numeroSecuBox = createHorizontalPanel();
-        JPanel listeAchatBox = createHorizontalPanel();
-
+        JPanel achats = createHorizontalPanel();
 
         nomBox.add(new JLabel("Nom       : "));
         prenomBox.add(new JLabel("Prenom   : "));
         adresseBox.add(new JLabel("Adresse  : "));
         numeroTelBox.add(new JLabel("N°teleph : "));
         numeroSecuBox.add(new JLabel("N°Secu   : "));
-        listeAchatBox.add(new JLabel("Achats    : "));
 
         //nomBox.add(Box.createHorizontalStrut(10));
         //prenomBox.add(Box.createHorizontalStrut(10));
@@ -237,35 +228,43 @@ class MenuClient extends JFrame {
         adresseBox.add(adresse);
         numeroTelBox.add(numeroTel);
         numeroSecuBox.add(numeroSecu);
-        //listeAchatBox.add(listeAchat);
+
+        if(mode.equals("chercher")) {
+            ArrayList<String[]> liste = Client.hashMapClients.get(key).getListeAchat();
+            DefaultTableModel model = new DefaultTableModel(new Object[] {"Reference", "Quantite", "Prix total"}, 0);
+            if(!(liste == null)){
+                Object[][]array = liste.toArray(new Object[liste.size()][]);
+                for (Object[] objects : array) model.addRow(objects);
+                JTable table = new JTable(model);
+                table.setSelectionBackground(Color.LIGHT_GRAY);
+                achats.add(new JScrollPane(table));
+            }
+        }
 
         JButton buttonEnregistrerN = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
         JButton buttonEnregistrerM = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
         JButton buttonSupprimer = new JButton("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png")));
-
         JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
+        JButton buttonAfficher = new JButton("Afficher les achats", new ImageIcon(Interface.class.getResource("icons/achat.png")));
 
         JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
 
         if(mode.equals("nouveau")) buttonBox.add(buttonEnregistrerN);
         if(mode.equals("modifier")) buttonBox.add(buttonEnregistrerM);
-        if(mode.equals("supprimer"))  buttonBox.add(buttonSupprimer);
-        if(!mode.equals("chercher"))  buttonBox.add(buttonAnnuler);
+        if(mode.equals("supprimer")) buttonBox.add(buttonSupprimer);
+        if(mode.equals("chercher")) buttonBox.add(buttonAfficher);
+        if(!mode.equals("chercher")) buttonBox.add(buttonAnnuler);
 
         panel.add(nomBox);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(30));
         panel.add(prenomBox);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(30));
         panel.add(adresseBox);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(30));
         panel.add(numeroTelBox);
-        panel.add(Box.createVerticalStrut(20));
+        panel.add(Box.createVerticalStrut(30));
         panel.add(numeroSecuBox);
-        panel.add(Box.createVerticalStrut(20));
-        //if(mode.equals("chercher")||mode.equals("modifier")) {
-        //    panel.add(listeAchatBox);
-        //    panel.add(Box.createVerticalStrut(20));
-        //}
+        panel.add(Box.createVerticalStrut(30));
         panel.add(buttonBox);
 
         JFormattedTextField finalNumeroTel = numeroTel;
@@ -273,7 +272,7 @@ class MenuClient extends JFrame {
 
         buttonEnregistrerN.addActionListener(arg0 -> {
             if(finalNumeroSecu.getText().trim().length() >= 13) {
-                Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText(), new ArrayList<>());
+                Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText(), null);
                 Client.hashMapClients.put(finalNumeroSecu.getText(), client);
                 JOptionPane.showMessageDialog(null, "Client enregistré avec succès!",
                         " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
@@ -305,6 +304,8 @@ class MenuClient extends JFrame {
                 Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
             } else Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
         });
+
+        buttonAfficher.addActionListener(arg0 -> Interface.tabbedPane.addTab("Liste achats", achats));
 
         buttonAnnuler.addActionListener(arg0 -> Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex()));
 
@@ -433,7 +434,7 @@ class MenuMedicaments extends JFrame {
         prixBox.add(new JLabel(       "Prix             : "));
 
         try {
-            NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+            NumberFormat doubleFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
             doubleFormat.setMaximumFractionDigits(2);
             MaskFormatter referenceFormat = new MaskFormatter("#########");
             referenceTextField = new JFormattedTextField(referenceFormat);
@@ -448,7 +449,6 @@ class MenuMedicaments extends JFrame {
 
         JTextField libelle = new JTextField(10);
         JTextField description = new JTextField(10);
-
 
         if(mode.equals("modifier") || mode.equals("rechercher")  || mode.equals("supprimer")) {
             assert referenceTextField != null;
@@ -484,9 +484,9 @@ class MenuMedicaments extends JFrame {
         panel.add(Box.createVerticalStrut(20));
         panel.add(descriptionBox);
         panel.add(Box.createVerticalStrut(20));
-        panel.add(quantiteBox);
-        panel.add(Box.createVerticalStrut(20));
         panel.add(prixBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(quantiteBox);
         panel.add(Box.createVerticalStrut(30));
         panel.add(buttonBox);
 
@@ -688,12 +688,12 @@ class MenuAchat extends JFrame {
         prixBox.add(prixTextField);
 
         JButton buttonEffectuer = new JButton("Effectuer", new ImageIcon(Interface.class.getResource("icons/ok.png")));
-        JButton buttonCalculer = new JButton("Calculer", new ImageIcon(Interface.class.getResource("icons/synchro24.png")));
+        JButton buttonEstimer = new JButton("Estimer", new ImageIcon(Interface.class.getResource("icons/synchro24.png")));
 
         JPanel buttonBox = new JPanel( new GridLayout( 1,2,1,0) );
 
         buttonBox.add(buttonEffectuer);
-        buttonBox.add(buttonCalculer);
+        buttonBox.add(buttonEstimer);
 
         panel.add(Box.createVerticalStrut(40));
         panel.add(numeroSecuBox);
@@ -711,7 +711,7 @@ class MenuAchat extends JFrame {
         JFormattedTextField finalQuantiteTextField = quantiteTextField;
         JFormattedTextField finalPrixTextField = prixTextField;
 
-        buttonCalculer.addActionListener(arg0 -> calculer(finalReferenceTextField, finalNumeroSecuTextField, finalQuantiteTextField, finalPrixTextField));
+        buttonEstimer.addActionListener(arg0 -> calculer(finalReferenceTextField, finalNumeroSecuTextField, finalQuantiteTextField, finalPrixTextField));
 
         buttonEffectuer.addActionListener(arg0 -> effectuer(finalReferenceTextField, finalNumeroSecuTextField,finalQuantiteTextField,finalPrixTextField));
 
@@ -719,7 +719,7 @@ class MenuAchat extends JFrame {
         return panel;
     }
     //------------------------------------------------------------------------------------------------------------------
-    private void calculer(JFormattedTextField reference, JFormattedTextField numero, JFormattedTextField quantite, JFormattedTextField prix) {
+    private boolean calculer(JFormattedTextField reference, JFormattedTextField numero, JFormattedTextField quantite, JFormattedTextField prix) {
 
         if (!Medicament.hashMapMedicaments.containsKey(reference.getText())) {
             JOptionPane.showMessageDialog(null, "Aucun medicament ne correspond a la referance saisie !",
@@ -734,6 +734,7 @@ class MenuAchat extends JFrame {
             String quantiteStr = Medicament.hashMapMedicaments.get(reference.getText()).getQuantite();
             String prixQuantiteStr = Medicament.hashMapMedicaments.get(reference.getText()).getPrix();
 
+            System.out.print(prixQuantiteStr);
             int quantiteActuelle = Integer.parseInt(quantiteStr);
             int quantiteDemandee = Integer.parseInt(quantite.getText());
             double prixQuantite = Double.parseDouble(prixQuantiteStr);
@@ -742,31 +743,42 @@ class MenuAchat extends JFrame {
                 JOptionPane.showMessageDialog(null, "Ce medicament est en rupture de stock !",
                         " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
             }
-            if (quantiteActuelle < quantiteDemandee) {
+            if (quantiteActuelle > 0 && quantiteActuelle < quantiteDemandee) {
                 JOptionPane.showMessageDialog(null, "Il en reste que " + quantiteActuelle + " dans le stock !",
                         " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
-            } else prix.setText(String.valueOf(prixQuantite * quantiteDemandee));
+            } else if (quantiteDemandee > 0){
+                prix.setText(String.valueOf(prixQuantite * quantiteDemandee));
+                return true;
+            }
         } else {
             JOptionPane.showMessageDialog(null, "Veuillez remplire les cases correctement! :",
                     " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
         }
+        return false;
     }
     //------------------------------------------------------------------------------------------------------------------
     private void effectuer(JFormattedTextField reference, JFormattedTextField numero, JFormattedTextField quantite, JFormattedTextField prix){
+        if(calculer(reference, numero, quantite, prix)){
 
-        calculer(reference, numero, quantite, prix);
+            int quantiteActuelle = Integer.parseInt(Medicament.hashMapMedicaments.get(reference.getText()).getQuantite());
+            int quantiteDemandee = Integer.parseInt(quantite.getText());
 
-        int quantiteActuelle = Integer.parseInt(Medicament.hashMapMedicaments.get(reference.getText()).getQuantite());
-        int quantiteDemandee = Integer.parseInt(quantite.getText());
+            Medicament.hashMapMedicaments.get(reference.getText()).setQuantite(String.valueOf(quantiteActuelle - quantiteDemandee));
 
-        Medicament.hashMapMedicaments.get(reference.getText()).setQuantite(String.valueOf(quantiteActuelle - quantiteDemandee));
+            String[] listeAchat = {reference.getText(), quantite.getText(), prix.getText()};
 
-        ArrayList<String> liste = Client.hashMapClients.get(numero.getText()).getListeAchat();
-        liste.add(reference.getText());
+            if(Client.hashMapClients.get(numero.getText()).getListeAchat() == null){
+                ArrayList<String[]> liste = new ArrayList<>();
+                liste.add(listeAchat);
+                Client.hashMapClients.get(numero.getText()).setListeAchat(liste);
+                System.out.print(liste);
+                System.out.print(Client.hashMapClients.get(numero.getText()).getListeAchat());
 
-        JOptionPane.showMessageDialog(null, "Achat effectue avec succes!",
-                " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
-        Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else Client.hashMapClients.get(numero.getText()).getListeAchat().add(listeAchat);
+
+            JOptionPane.showMessageDialog(null, "Achat effectue avec succes!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+        }
     }
     //------------------------------------------------------------------------------------------------------------------
     public static JPanel createVerticalPanel() {
@@ -792,12 +804,14 @@ class MenuArchives extends JFrame {
         Action clients = new AbstractAction("Clients", new ImageIcon(Interface.class.getResource("icons/archives.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Liste clients");
                 Interface.tabbedPane.addTab("Liste clients", new JScrollPane(listeClients())); //  <html><i>text cursive
             }
         };
         Action medicaments = new AbstractAction("Medicaments", new ImageIcon(Interface.class.getResource("icons/archives1.png"))) {
             @Override
             public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Liste medicaments");
                 Interface.tabbedPane.addTab("Liste medicaments", new JScrollPane(listeMedicaments()));
             }
         };
@@ -845,14 +859,13 @@ class MenuArchives extends JFrame {
 }
 //----------------------------------------------------------------------------------------------------------------------
 
-
 class Client {
 
     public String numeroSecu,nom, prenom,adresse, numero;
-    public ArrayList<String> listeAchat;
+    public ArrayList<String[]> listeAchat;
     public static HashMap<String, Client> hashMapClients = new HashMap<>();
 
-    public Client(String numeroSecu, String nom, String prenom, String adresse, String numero, ArrayList<String> listeMedicaments ) {
+    public Client(String numeroSecu, String nom, String prenom, String adresse, String numero, ArrayList<String[]>  listeMedicaments ) {
         this.nom = nom;
         this.prenom = prenom;
         this.adresse = adresse;
@@ -860,7 +873,7 @@ class Client {
         this.numeroSecu = numeroSecu;
     }
 
-    public ArrayList<String> getListeAchat(){ return listeAchat; }
+    public ArrayList<String[]> getListeAchat(){ return listeAchat; }
     public String getNumeroSecu() { return numeroSecu; }
     public String getAdresse() { return adresse; }
     public String getPrenom() { return prenom;  }
@@ -872,12 +885,10 @@ class Client {
     public void setPrenom(String prenom) { this.prenom = prenom; }
     public void setAdresse(String adresse) { this.adresse = adresse; }
     public void setNumeroSecu(String numeroSecu){this.numeroSecu = numeroSecu;}
-    public void setListeAchat(ArrayList<String> listeAchat){ this.listeAchat = listeAchat; }
+    public void setListeAchat(ArrayList<String[]> listeAchat){ this.listeAchat = listeAchat; }
 
 }
 //----------------------------------------------------------------------------------------------------------------------
-
-
 class Medicament {
     public String reference, libelle, description, quantite, prix;
     public static HashMap<String, Medicament> hashMapMedicaments = new HashMap<>();
@@ -907,8 +918,13 @@ class Medicament {
 
 class APP5 extends JFrame {
     public static void main(String[] args) {
-        JFrame.setDefaultLookAndFeelDecorated(true);
-        new Interface();
+        try {
+            JFrame.setDefaultLookAndFeelDecorated(true);
+            new Interface();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+        }
     }
 }
 
