@@ -1,0 +1,971 @@
+import java.util.*;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
+import javax.swing.*;
+import javax.swing.border.LineBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.text.MaskFormatter;
+
+import java.text.NumberFormat;
+import java.text.ParseException;
+import static javax.swing.JOptionPane.QUESTION_MESSAGE;
+
+//----------------------------------------------------------------------------------------------------------------------
+/**
+ * MenuArchives ------------- 2/2  ok
+ * MenuClient --------------- 4/4  proposition : faire boutons non cliquables si textf est incorrectement rempli
+ * MenuMedicaments ---------- 4/4  same
+ * MenuAchat -----------------3/4  enregistrer info achat
+ */
+//----------------------------------------------------------------------------------------------------------------------
+
+class Interface extends JFrame {
+
+    public static JPanel panel = new JPanel();
+    public static JToolBar toolBar = new JToolBar();
+    public static JTabbedPane tabbedPane = new JTabbedPane();
+    private static final long serialVersionUID = 1L;
+
+    public Interface() {
+        super("");
+        super.setBackground(Color.CYAN);
+        super.setSize(400, 500);
+        super.setLocationRelativeTo (null); // pour centrer la fenetre
+        super.setDefaultCloseOperation( EXIT_ON_CLOSE );
+
+        toolBar.add(Box.createHorizontalGlue()); //Pour que menu de la toobar soit à droite
+        toolBar.setBorder(new LineBorder(Color.CYAN)); // Pour que les bord de la fenetre soit cyan
+
+        panel.setLayout(new BorderLayout());
+        JMenuBar menuBar = new JMenuBar();
+
+        menuBar.add(new MenuClient().main());
+        menuBar.add(new MenuMedicaments().main());
+        menuBar.add(new MenuAchat().main());
+        menuBar.add(new MenuArchives().main());
+        menuBar.add(info());
+        menuBar.add(exit());
+
+        super.setJMenuBar(menuBar);
+        super.add(toolBar, BorderLayout.PAGE_START); //Au début de la page donc tout en haut
+        super.getContentPane().add(panel); //Contient les composants du JFrame
+
+        JButton buttonFermer = new JButton("", new ImageIcon(Interface.class.getResource("icons/del.png")));
+         panel.add(buttonFermer,BorderLayout.NORTH);
+
+        buttonFermer.addMouseListener(new MouseAdapter() { // TODO  ML reajit sur toute label non seulement l'icone, il faut le modifier + tard
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int select = Interface.tabbedPane.getSelectedIndex();
+                if (select >= 0) Interface.tabbedPane.removeTabAt(select);
+            }
+        });
+
+        super.setVisible(true);
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    public JMenu info() {
+        JMenu menu = new JMenu("Info");
+
+        Action afficherInfo = new AbstractAction("Information", new ImageIcon(Interface.class.getResource("icons/info24.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Info");
+                JOptionPane.showMessageDialog(null, "the owls are not what they seem \n" +
+                                "",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/info64.png")));
+            }
+        };
+        Interface.toolBar.add(afficherInfo);
+        menu.add(new JMenuItem(afficherInfo));
+        return menu;
+    }
+
+    private JMenu exit() {
+        JMenu menu = new JMenu("Exit");
+
+        Action exit = new AbstractAction("Exit", new ImageIcon(Interface.class.getResource("icons/exit.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Quitter");
+                System.exit(0);
+            }
+        };
+
+        toolBar.add(exit);
+        menu.add(new JMenuItem(exit));
+        return menu;
+    }
+}
+//----------------------------------------------------------------------------------------------------------------------
+class MenuClient extends JFrame {
+
+    public JMenu main() {
+        JMenu menu = new JMenu("Client");
+
+        Interface.panel.repaint();
+        Interface.tabbedPane.removeAll();
+
+        Action ajouter = new AbstractAction("Nouveau", new ImageIcon(Interface.class.getResource("icons/add.png"))) {
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Nouveau client");
+                Interface.tabbedPane.addTab("Nouveau client", panelClient("nouveau","null"));
+            }
+        };
+
+        Action modifier = new AbstractAction("Modifier", new ImageIcon(Interface.class.getResource("icons/edit.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Modifier client");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Modifier client", panelClient("modifier", key));
+            }
+        };
+
+        Action supprimer = new AbstractAction("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Supprimer client");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Supprimer client", panelClient("supprimer", key));
+            }
+        };
+
+        Action chercher = new AbstractAction("Chercher", new ImageIcon(Interface.class.getResource("icons/chercher.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Chercher client");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Chercher client", panelClient("chercher", key));
+            }
+        };
+
+        Interface.toolBar.add(ajouter);
+        Interface.toolBar.add(modifier);
+        Interface.toolBar.add(chercher);
+
+        menu.add(new JMenuItem(ajouter));
+        menu.addSeparator();
+        menu.add(new JMenuItem(modifier));
+        menu.addSeparator();
+        menu.add(new JMenuItem(supprimer));
+        menu.addSeparator();
+        menu.add(new JMenuItem(chercher));
+        Interface.panel.setLayout(new BorderLayout());
+        Interface.panel.add(Interface.tabbedPane, BorderLayout.CENTER);
+
+        return menu;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JPanel panelClient(String mode, String key){
+
+        JFormattedTextField numeroTel = null, numeroSecu = null;
+
+        JPanel panel = createVerticalPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+
+        try {
+            MaskFormatter phoneFormatter = new MaskFormatter("+33-###-##-##-##");
+            MaskFormatter numFormatter = new MaskFormatter("#############");
+            //phoneFormatter.setPlaceholderCharacter('0');
+            //numFormatter.setPlaceholderCharacter('0');
+            numeroSecu = new JFormattedTextField(numFormatter);
+            numeroTel = new JFormattedTextField(phoneFormatter);
+            numeroTel.setColumns(10);
+            numeroSecu.setColumns(10);
+            numeroSecu.setForeground(Color.BLUE);
+            if(mode.equals("modifier") || mode.equals("supprimer") || mode.equals("chercher")) {
+                numeroSecu.setValue(Client.hashMapClients.get(key).getNumeroSecu());
+                numeroTel.setValue(Client.hashMapClients.get(key).getNumero());
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+
+        JPanel nomBox = createHorizontalPanel();
+        JPanel prenomBox = createHorizontalPanel();
+        JPanel adresseBox = createHorizontalPanel();
+        JPanel numeroTelBox = createHorizontalPanel();
+        JPanel numeroSecuBox = createHorizontalPanel();
+        JPanel achats = createHorizontalPanel();
+
+        nomBox.add(new JLabel("Nom       : "));
+        prenomBox.add(new JLabel("Prenom   : "));
+        adresseBox.add(new JLabel("Adresse  : "));
+        numeroTelBox.add(new JLabel("N°teleph : "));
+        numeroSecuBox.add(new JLabel("N°Secu   : "));
+
+        //nomBox.add(Box.createHorizontalStrut(10));
+        //prenomBox.add(Box.createHorizontalStrut(10));
+        //adresseBox.add(Box.createHorizontalStrut(10));
+        //numeroTelBox.add(Box.createHorizontalStrut(10));
+        //numeroSecuBox.add(Box.createHorizontalStrut(10));
+
+        JTextField nom = new JTextField(10);
+        JTextField prenom = new JTextField(10);
+        JTextField adresse = new JTextField(10);
+
+        if(mode.equals("modifier") || mode.equals("supprimer")) {
+            nom.setText(Client.hashMapClients.get(key).getNom());
+            prenom.setText(Client.hashMapClients.get(key).getPrenom());
+            adresse.setText(Client.hashMapClients.get(key).getAdresse());
+            
+            nomBox.add(nom);
+            prenomBox.add(prenom);
+            adresseBox.add(adresse);
+        }
+        else if(mode.equals("chercher")) {
+        	String N = Client.hashMapClients.get(key).getNom();
+            String PR = Client.hashMapClients.get(key).getPrenom();
+            String A = Client.hashMapClients.get(key).getAdresse();
+            String NT = Client.hashMapClients.get(key).getNumero();
+            String NS = Client.hashMapClients.get(key).getNumeroSecu();
+           
+            nomBox.add(new JLabel(N));
+            prenomBox.add(new JLabel(PR));
+            adresseBox.add(new JLabel(A));
+            numeroTelBox.add(new JLabel(NT));
+            numeroSecuBox.add(new JLabel(NS));
+        }
+        else {
+
+        nomBox.add(nom);
+        prenomBox.add(prenom);
+        adresseBox.add(adresse);
+        numeroTelBox.add(numeroTel);
+        numeroSecuBox.add(numeroSecu);
+        }
+
+        if(mode.equals("chercher")) {
+            ArrayList<String[]> liste = Client.hashMapClients.get(key).getListeAchat();
+            DefaultTableModel model = new DefaultTableModel(new Object[] {"Reference", "Quantite", "Prix total"}, 0);
+            if(!(liste == null)){
+                Object[][]array = liste.toArray(new Object[liste.size()][]);
+                for (Object[] objects : array) model.addRow(objects);
+                JTable table = new JTable(model);
+                table.setSelectionBackground(Color.LIGHT_GRAY);
+                achats.add(new JScrollPane(table));
+            }
+        }
+
+        JButton buttonEnregistrerN = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonEnregistrerM = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonSupprimer = new JButton("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png")));
+        JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
+        JButton buttonAfficher = new JButton("Afficher les achats", new ImageIcon(Interface.class.getResource("icons/achat.png")));
+
+        JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
+
+        if(mode.equals("nouveau")) buttonBox.add(buttonEnregistrerN);
+        if(mode.equals("modifier")) buttonBox.add(buttonEnregistrerM);
+        if(mode.equals("supprimer")) buttonBox.add(buttonSupprimer);
+        if(mode.equals("chercher")) buttonBox.add(buttonAfficher);
+        if(!mode.equals("chercher")) buttonBox.add(buttonAnnuler);
+
+        panel.add(nomBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(prenomBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(adresseBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(numeroTelBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(numeroSecuBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(buttonBox);
+
+        JFormattedTextField finalNumeroTel = numeroTel;
+        JFormattedTextField finalNumeroSecu = numeroSecu;
+
+        buttonEnregistrerN.addActionListener(arg0 -> {
+            if(finalNumeroSecu.getText().trim().length() >= 13) {
+                Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText(), null);
+                Client.hashMapClients.put(finalNumeroSecu.getText(), client);
+                JOptionPane.showMessageDialog(null, "Client enregistré avec succès!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else { JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            }
+        });
+
+        buttonEnregistrerM.addActionListener(arg0 -> {
+            Client.hashMapClients.get(key).setNom(nom.getText());
+            Client.hashMapClients.get(key).setPrenom(prenom.getText());
+            Client.hashMapClients.get(key).setAdresse(adresse.getText());
+            Client.hashMapClients.get(key).setNumero(finalNumeroTel.getText());
+            Client.hashMapClients.get(key).setNumeroSecu(finalNumeroSecu.getText());
+
+            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        });
+
+        buttonSupprimer.addActionListener(arg0 -> {
+            int reponse = JOptionPane.showConfirmDialog(null, "Supprimer ce profil?",
+                    "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, new ImageIcon(Interface.class.getResource("icons/att.png")));
+            if(reponse == 0) {
+                Client.hashMapClients.remove(key);
+                JOptionPane.showMessageDialog(null, "Profil supprime avec succes!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/info64.png")));
+                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        });
+
+        buttonAfficher.addActionListener(arg0 -> Interface.tabbedPane.addTab("Liste achats", achats));
+
+        buttonAnnuler.addActionListener(arg0 -> Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex()));
+
+        pack();
+        return panel;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private String VerificationCle(){
+        ImageIcon icon1 = new ImageIcon(Interface.class.getResource("icons/key.png"));
+        ImageIcon icon2 = new ImageIcon(Interface.class.getResource("icons/erreur.png"));
+
+        String key = (String) JOptionPane.showInputDialog(null,"Entrez le N°secu de client :",null, QUESTION_MESSAGE , icon1,null,null);
+
+        while(true) {
+            if(Client.hashMapClients.containsKey(key)) return key;
+            if(key.equals("null")) return "null";
+            else key = (String) JOptionPane.showInputDialog(null,"N° icorrect! Reessayer :",null, QUESTION_MESSAGE , icon2,null,null);
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private static JPanel createVerticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+
+    private static JPanel createHorizontalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        return panel;
+    }
+}
+//----------------------------------------------------------------------------------------------------------------------
+class MenuMedicaments extends JFrame {
+
+    public JMenu main() {
+
+        JMenu menu = new JMenu("Medicaments");
+
+
+        Action ajouter = new AbstractAction("Ajouter", new ImageIcon(Interface.class.getResource("icons/add2.png"))) {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Ajouter medicament");
+                Interface.tabbedPane.addTab("Ajouter medicament", panelMedicament("nouveau", "null"));
+            }
+        };
+
+        Action modifier = new AbstractAction("Modifier", new ImageIcon(Interface.class.getResource("icons/edit.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Modifier medicament");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Modifier medicament", panelMedicament("modifier", key));
+            }
+        };
+
+        Action supprimer = new AbstractAction("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Supprimer medicament");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Supprimer client", panelMedicament("supprimer", key));
+            }
+        };
+
+        Action rechercher = new AbstractAction("Rechercher", new ImageIcon(Interface.class.getResource("icons/search.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Rechercher medicament");
+                String key = VerificationCle();
+                if(key.equals("null")){
+                    int index = Interface.tabbedPane.getSelectedIndex();
+                    if (index >= 0) Interface.tabbedPane.removeTabAt(index);
+                } else Interface.tabbedPane.addTab("Rechercher medicament", panelMedicament("rechercher", key));
+            }
+        };
+
+        Action approvisionner = new AbstractAction("Approvisionner", new ImageIcon(Interface.class.getResource("icons/capsule.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Approvisionner");
+                Interface.tabbedPane.addTab("Approvisionnement", approvisionnerMedicament());
+            }
+        };
+
+        Interface.toolBar.add(ajouter);
+        Interface.toolBar.add(rechercher);
+        Interface.toolBar.add(approvisionner);
+        menu.add(new JMenuItem(ajouter));
+        menu.addSeparator();
+        menu.add(new JMenuItem(modifier));
+        menu.addSeparator();
+        menu.add(new JMenuItem(supprimer));
+        menu.addSeparator();
+        menu.add(new JMenuItem(rechercher));
+        menu.addSeparator();
+        menu.add(new JMenuItem(approvisionner));
+        return menu;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JPanel panelMedicament(String mode, String key){
+
+        JFormattedTextField referenceTextField = null, prixTextField = null, quantiteTextField = null;
+
+        JPanel panel = createVerticalPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+
+        JPanel referenceBox = createHorizontalPanel();
+        JPanel libelleBox = createHorizontalPanel();
+        JPanel descriptionBox = createHorizontalPanel();
+        JPanel quantiteBox =  createHorizontalPanel();
+        JPanel prixBox =  createHorizontalPanel();
+
+        referenceBox.add(new JLabel(  "Reference   : "));
+        libelleBox.add(new JLabel(    "Libelle         : "));
+        descriptionBox.add(new JLabel("Description   : "));
+        quantiteBox.add(new JLabel(    "Quantite      : "));
+        prixBox.add(new JLabel(       "Prix             : "));
+
+        try {
+            NumberFormat doubleFormat = NumberFormat.getNumberInstance(Locale.ENGLISH);
+            doubleFormat.setMaximumFractionDigits(2);
+            MaskFormatter referenceFormat = new MaskFormatter("#########");
+            referenceTextField = new JFormattedTextField(referenceFormat);
+            quantiteTextField = new JFormattedTextField(doubleFormat);
+            prixTextField = new JFormattedTextField(doubleFormat);
+            referenceTextField.setForeground(Color.BLUE);
+            referenceTextField.setColumns(10);
+            quantiteTextField.setColumns(10);
+            prixTextField.setColumns(10);
+
+        } catch (ParseException e) { e.printStackTrace(); }
+
+        JTextField libelle = new JTextField(10);
+        JTextField description = new JTextField(10);
+
+        if(mode.equals("modifier") || mode.equals("supprimer")) {
+            assert referenceTextField != null;
+            referenceTextField.setText(Medicament.hashMapMedicaments.get(key).getReference());
+            quantiteTextField.setText(Medicament.hashMapMedicaments.get(key).getQuantite());
+            prixTextField.setText(Medicament.hashMapMedicaments.get(key).getPrix());
+            libelle.setText(Medicament.hashMapMedicaments.get(key).getLibelle());
+            description.setText(Medicament.hashMapMedicaments.get(key).getDescription());
+            
+            referenceBox.add(referenceTextField);
+            libelleBox.add(libelle);
+            descriptionBox.add(description);
+            quantiteBox.add(quantiteTextField);
+            prixBox.add(prixTextField);
+        }
+        else if(mode.equals("rechercher")) {
+        	String R = Medicament.hashMapMedicaments.get(key).getReference();
+            String L = Medicament.hashMapMedicaments.get(key).getLibelle();
+            String D = Medicament.hashMapMedicaments.get(key).getDescription();
+            String Q = Medicament.hashMapMedicaments.get(key).getQuantite();
+            String P = Medicament.hashMapMedicaments.get(key).getPrix();
+           
+            referenceBox.add(new JLabel(R));
+            libelleBox.add(new JLabel(L));
+            descriptionBox.add(new JLabel(D));
+            quantiteBox.add(new JLabel(Q));
+            prixBox.add(new JLabel(P));
+        }
+        else {
+        referenceBox.add(referenceTextField);
+        libelleBox.add(libelle);
+        descriptionBox.add(description);
+        quantiteBox.add(quantiteTextField);
+        prixBox.add(prixTextField);
+        }
+
+        JButton buttonEnregistrerN = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonEnregistrerM = new JButton("Enregistrer", new ImageIcon(Interface.class.getResource("icons/save.png")));
+        JButton buttonSupprimer = new JButton("Supprimer", new ImageIcon(Interface.class.getResource("icons/del.png")));
+        JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
+
+        JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
+
+        if(mode.equals("nouveau")) buttonBox.add(buttonEnregistrerN);
+        if(mode.equals("modifier")) buttonBox.add(buttonEnregistrerM);
+        if(mode.equals("supprimer"))  buttonBox.add(buttonSupprimer);
+        if(!mode.equals("rechercher"))  buttonBox.add(buttonAnnuler);
+
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(referenceBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(libelleBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(descriptionBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(prixBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(quantiteBox);
+        panel.add(Box.createVerticalStrut(30));
+        panel.add(buttonBox);
+
+        JFormattedTextField finalReferenceTextField = referenceTextField;
+        JFormattedTextField finalQuantiteTextField = quantiteTextField;
+        JFormattedTextField finalPrixTextField = prixTextField;
+
+        buttonEnregistrerN.addActionListener(arg0 -> {
+            if(finalReferenceTextField.getText().trim().length() >= 8) {
+                Medicament medicament = new Medicament(finalReferenceTextField.getText(), libelle.getText(), description.getText(), finalQuantiteTextField.getText(), finalPrixTextField.getText());
+                Medicament.hashMapMedicaments.put(finalReferenceTextField.getText(), medicament);
+                JOptionPane.showMessageDialog(null, "Medicament enregistré avec succès!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else {
+                JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            }
+        });
+
+        buttonEnregistrerM.addActionListener(arg0 -> {
+            Medicament.hashMapMedicaments.get(key).setReference(finalReferenceTextField.getText());
+            Medicament.hashMapMedicaments.get(key).setLibelle(libelle.getText());
+            Medicament.hashMapMedicaments.get(key).setDescription(description.getText());
+            Medicament.hashMapMedicaments.get(key).setQuantite(finalQuantiteTextField.getText());
+            Medicament.hashMapMedicaments.get(key).setPrix(finalPrixTextField.getText());
+
+            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        });
+
+        buttonSupprimer.addActionListener(arg0 -> {
+            int reponse = JOptionPane.showConfirmDialog(null, "Supprimer ce medicament?",
+                    "", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE, new ImageIcon(Interface.class.getResource("icons/att.png")));
+            if(reponse == 0) {
+                Medicament.hashMapMedicaments.remove(key);
+                JOptionPane.showMessageDialog(null, "Medicament supprime avec succes!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/info64.png")));
+                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        });
+
+        buttonAnnuler.addActionListener(arg0 -> Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex()));
+
+        pack();
+        return panel;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JPanel approvisionnerMedicament(){
+
+        JFormattedTextField referenceTextField = null, quantiteTextField = null;
+
+        JPanel panel = createVerticalPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+
+        JPanel referenceBox = createHorizontalPanel();
+        JPanel quantiteBox = createHorizontalPanel();
+
+        referenceBox.add(new JLabel(  "Reference    : "));
+        quantiteBox.add(new JLabel(    "Quantite      : "));
+
+        try {
+            NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+            doubleFormat.setMaximumFractionDigits(2);
+            MaskFormatter referenceFormat = new MaskFormatter("#########");
+            referenceTextField = new JFormattedTextField(referenceFormat);
+            quantiteTextField = new JFormattedTextField(doubleFormat);
+            referenceTextField.setColumns(10);
+            quantiteTextField.setColumns(10);
+        } catch (ParseException e) { e.printStackTrace(); }
+
+        referenceBox.add(referenceTextField);
+        quantiteBox.add(quantiteTextField);
+
+        JButton buttonApprovisionner = new JButton("Approvisionner", new ImageIcon(Interface.class.getResource("icons/ok.png")));
+        JButton buttonAnnuler = new JButton("Annuler", new ImageIcon(Interface.class.getResource("icons/cancel.png")));
+
+        JPanel buttonBox = new JPanel( new GridLayout( 1,2,5,0) );
+        buttonBox.add(buttonApprovisionner);
+        buttonBox.add(buttonAnnuler);
+
+        panel.add(Box.createVerticalStrut(40));
+        panel.add(referenceBox);
+        panel.add(Box.createVerticalStrut(40));
+        panel.add(quantiteBox);
+        panel.add(Box.createVerticalStrut(110));
+        panel.add(buttonBox);
+
+        JFormattedTextField finalReferenceTextField = referenceTextField;
+        JFormattedTextField finalQuantiteTextField = quantiteTextField;
+
+        buttonApprovisionner.addActionListener(arg0 -> {
+
+            if(Medicament.hashMapMedicaments.containsKey(finalReferenceTextField.getText())){
+                String quantiteStr = Medicament.hashMapMedicaments.get(finalReferenceTextField.getText()).getQuantite();
+                int quantiteActuelle = Integer.parseInt(quantiteStr);
+                int quantiteDemandee = Integer.parseInt(finalQuantiteTextField.getText());
+                int nouvelleQuantite = quantiteActuelle + quantiteDemandee;
+                Medicament.hashMapMedicaments.get(finalReferenceTextField.getText()).setQuantite(String.valueOf(nouvelleQuantite));
+
+                JOptionPane.showMessageDialog(null, "Approvisionnement effectue avec succes!",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            } else {
+                JOptionPane.showMessageDialog(null, "Reference icorrecte! Reessayer :",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            }
+        });
+        buttonAnnuler.addActionListener(arg0 -> Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex()));
+
+        pack();
+        return panel;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private String VerificationCle(){
+
+        ImageIcon icon1 = new ImageIcon(Interface.class.getResource("icons/key.png"));
+        ImageIcon icon2 = new ImageIcon(Interface.class.getResource("icons/erreur.png"));
+
+        String key = (String) JOptionPane.showInputDialog(null,"Entrez la reference du medicament :",null, QUESTION_MESSAGE , icon1,null,null);
+
+        while(true) {
+            if(Medicament.hashMapMedicaments.containsKey(key)) return key;
+            if(key.equals("null")) return "null";
+            else key = (String) JOptionPane.showInputDialog(null,"Reference icorrecte! Reessayer :",null, QUESTION_MESSAGE , icon2,null,null);
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    public static JPanel createVerticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+    public static JPanel createHorizontalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        return panel;
+    }
+}
+
+
+
+//----------------------------------------------------------------------------------------------------------------------
+class MenuAchat extends JFrame {
+
+    public JMenu main() {
+        Interface.panel.repaint();
+        Interface.tabbedPane.removeAll();
+        JMenu menu = new JMenu("Achat");
+        Action achat = new AbstractAction("Effectuer", new ImageIcon(Interface.class.getResource("icons/euro.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Interface.tabbedPane.addTab("Effectuer un achat", effectuerAchat());
+            }
+        };
+
+        Interface.toolBar.add(achat);
+        menu.add(new JMenuItem(achat));
+        Interface.panel.add(Interface.tabbedPane, BorderLayout.CENTER);
+        return menu;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JPanel effectuerAchat(){
+
+        JFormattedTextField numeroSecuTextField = null, referenceTextField = null, quantiteTextField = null, prixTextField = null;
+
+        JPanel panel = createVerticalPanel();
+        panel.setBorder(BorderFactory.createEmptyBorder(10,20,20,20));
+
+        JPanel numeroSecuBox = createHorizontalPanel();
+        JPanel referenceBox = createHorizontalPanel();
+        JPanel quantiteBox = createHorizontalPanel();
+        JPanel prixBox = createHorizontalPanel();
+
+        try {
+            MaskFormatter numeroSecuFormatter = new MaskFormatter("#############");
+            MaskFormatter referenceFormat = new MaskFormatter("#########");
+            NumberFormat doubleFormat = NumberFormat.getNumberInstance();
+
+            numeroSecuTextField = new JFormattedTextField(numeroSecuFormatter);
+            referenceTextField = new JFormattedTextField(referenceFormat);
+            quantiteTextField = new JFormattedTextField(doubleFormat);
+            prixTextField = new JFormattedTextField(doubleFormat);
+
+            prixTextField.setForeground(Color.BLUE);
+            doubleFormat.setMaximumFractionDigits(2);
+            numeroSecuTextField.setColumns(10);
+            referenceTextField.setColumns(10);
+            quantiteTextField.setColumns(10);
+            prixTextField.setColumns(10);
+        } catch (ParseException e) { e.printStackTrace(); }
+
+        referenceBox.add(new JLabel("Reference du medicament  : "));
+        numeroSecuBox.add(new JLabel("N° securite du client          : "));
+        quantiteBox.add(new JLabel("Quantite selectionee          : "));
+        prixBox.add(new JLabel("Prix total d'achat                : "));
+
+        numeroSecuBox.add(numeroSecuTextField);
+        referenceBox.add(referenceTextField);
+        quantiteBox.add(quantiteTextField);
+        prixBox.add(prixTextField);
+
+        JButton buttonEffectuer = new JButton("Effectuer", new ImageIcon(Interface.class.getResource("icons/ok.png")));
+        JButton buttonEstimer = new JButton("Estimer", new ImageIcon(Interface.class.getResource("icons/synchro24.png")));
+
+        JPanel buttonBox = new JPanel( new GridLayout( 1,2,1,0) );
+
+        buttonBox.add(buttonEffectuer);
+        buttonBox.add(buttonEstimer);
+
+        panel.add(Box.createVerticalStrut(40));
+        panel.add(numeroSecuBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(referenceBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(quantiteBox);
+        panel.add(Box.createVerticalStrut(20));
+        panel.add(prixBox);
+        panel.add(Box.createVerticalStrut(40));
+        panel.add(buttonBox);
+
+        JFormattedTextField finalNumeroSecuTextField = numeroSecuTextField;
+        JFormattedTextField finalReferenceTextField = referenceTextField;
+        JFormattedTextField finalQuantiteTextField = quantiteTextField;
+        JFormattedTextField finalPrixTextField = prixTextField;
+
+        buttonEstimer.addActionListener(arg0 -> calculer(finalReferenceTextField, finalNumeroSecuTextField, finalQuantiteTextField, finalPrixTextField));
+
+        buttonEffectuer.addActionListener(arg0 -> effectuer(finalReferenceTextField, finalNumeroSecuTextField,finalQuantiteTextField,finalPrixTextField));
+
+        pack();
+        return panel;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private boolean calculer(JFormattedTextField reference, JFormattedTextField numero, JFormattedTextField quantite, JFormattedTextField prix) {
+
+        if (!Medicament.hashMapMedicaments.containsKey(reference.getText())) {
+            JOptionPane.showMessageDialog(null, "Aucun medicament ne correspond a la referance saisie !",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+        }
+        if (!Client.hashMapClients.containsKey(numero.getText())) {
+            JOptionPane.showMessageDialog(null, "Aucun client ne correspond au numero saisi!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+        }
+        if (Medicament.hashMapMedicaments.containsKey(reference.getText()) && Client.hashMapClients.containsKey(numero.getText())) {
+
+            String quantiteStr = Medicament.hashMapMedicaments.get(reference.getText()).getQuantite();
+            String prixQuantiteStr = Medicament.hashMapMedicaments.get(reference.getText()).getPrix();
+
+            System.out.print(prixQuantiteStr);
+            int quantiteActuelle = Integer.parseInt(quantiteStr);
+            int quantiteDemandee = Integer.parseInt(quantite.getText());
+            double prixQuantite = Double.parseDouble(prixQuantiteStr);
+
+            if (quantiteActuelle <= 0) { // TODO ajouter la possibilite d'approvisionnement
+                JOptionPane.showMessageDialog(null, "Ce medicament est en rupture de stock !",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            }
+            if (quantiteActuelle > 0 && quantiteActuelle < quantiteDemandee) {
+                JOptionPane.showMessageDialog(null, "Il en reste que " + quantiteActuelle + " dans le stock !",
+                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            } else if (quantiteDemandee > 0){
+                prix.setText(String.valueOf(prixQuantite * quantiteDemandee));
+                return true;
+            }
+        } else {
+            JOptionPane.showMessageDialog(null, "Veuillez remplire les cases correctement! :",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+        }
+        return false;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private void effectuer(JFormattedTextField reference, JFormattedTextField numero, JFormattedTextField quantite, JFormattedTextField prix){
+        if(calculer(reference, numero, quantite, prix)){
+
+            int quantiteActuelle = Integer.parseInt(Medicament.hashMapMedicaments.get(reference.getText()).getQuantite());
+            int quantiteDemandee = Integer.parseInt(quantite.getText());
+
+            Medicament.hashMapMedicaments.get(reference.getText()).setQuantite(String.valueOf(quantiteActuelle - quantiteDemandee));
+
+            String[] listeAchat = {reference.getText(), quantite.getText(), prix.getText()};
+
+            if(Client.hashMapClients.get(numero.getText()).getListeAchat() == null){
+                ArrayList<String[]> liste = new ArrayList<>();
+                liste.add(listeAchat);
+                Client.hashMapClients.get(numero.getText()).setListeAchat(liste);
+                System.out.print(liste);
+                System.out.print(Client.hashMapClients.get(numero.getText()).getListeAchat());
+
+            } else Client.hashMapClients.get(numero.getText()).getListeAchat().add(listeAchat);
+
+            JOptionPane.showMessageDialog(null, "Achat effectue avec succes!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    public static JPanel createVerticalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        return panel;
+    }
+
+    public static JPanel createHorizontalPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        return panel;
+    }
+
+}
+//----------------------------------------------------------------------------------------------------------------------
+class MenuArchives extends JFrame {
+
+    public JMenu main() {
+
+        JMenu menu = new JMenu("Archives");
+
+        Action clients = new AbstractAction("Clients", new ImageIcon(Interface.class.getResource("icons/archives.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Liste clients");
+                Interface.tabbedPane.addTab("Liste clients", new JScrollPane(listeClients())); //  <html><i>text cursive
+            }
+        };
+        Action medicaments = new AbstractAction("Medicaments", new ImageIcon(Interface.class.getResource("icons/archives1.png"))) {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                putValue(SHORT_DESCRIPTION, "Liste medicaments");
+                Interface.tabbedPane.addTab("Liste medicaments", new JScrollPane(listeMedicaments()));
+            }
+        };
+
+        Interface.toolBar.add(clients);
+        Interface.toolBar.add(medicaments);
+        menu.add(new JMenuItem(clients));
+        menu.addSeparator();
+        menu.add(new JMenuItem(medicaments));
+        return menu;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JTable listeClients(){
+        DefaultTableModel model = new DefaultTableModel(new Object[] {"N°Secu", "Nom", "Prenom", "Adresse", "N°Tel"}, 0);
+
+        for(String key : Client.hashMapClients.keySet()) {
+            model.addRow(new Object[] {
+                    Client.hashMapClients.get(key).getNumeroSecu(),
+                    Client.hashMapClients.get(key).getNom(),
+                    Client.hashMapClients.get(key).getPrenom(),
+                    Client.hashMapClients.get(key).getAdresse(),
+                    Client.hashMapClients.get(key).getNumero()});
+        }
+        JTable table = new JTable(model);
+        table.setSelectionBackground(Color.LIGHT_GRAY);
+        // table.setSelectionForeground(Color.BLACK);
+        return table;
+    }
+    //------------------------------------------------------------------------------------------------------------------
+    private JTable listeMedicaments(){
+        DefaultTableModel model = new DefaultTableModel(new Object[] {"Reference", "Libelle", "Description", "Quantite", "Prix"}, 0);
+
+        for(String key : Medicament.hashMapMedicaments.keySet()) {
+            model.addRow(new Object[] {
+                    Medicament.hashMapMedicaments.get(key).getReference(),
+                    Medicament.hashMapMedicaments.get(key).getLibelle(),
+                    Medicament.hashMapMedicaments.get(key).getDescription(),
+                    Medicament.hashMapMedicaments.get(key).getQuantite(),
+                    Medicament.hashMapMedicaments.get(key).getPrix()});
+        }
+        JTable table = new JTable(model);
+        table.setSelectionBackground(Color.LIGHT_GRAY);
+        return table;
+    }
+}
+//----------------------------------------------------------------------------------------------------------------------
+
+class Client {
+
+    public String numeroSecu,nom, prenom,adresse, numero;
+    public ArrayList<String[]> listeAchat;
+    public static HashMap<String, Client> hashMapClients = new HashMap<>();
+
+    public Client(String numeroSecu, String nom, String prenom, String adresse, String numero, ArrayList<String[]>  listeMedicaments ) {
+        this.nom = nom;
+        this.prenom = prenom;
+        this.adresse = adresse;
+        this.numero = numero;
+        this.numeroSecu = numeroSecu;
+    }
+
+    public ArrayList<String[]> getListeAchat(){ return listeAchat; }
+    public String getNumeroSecu() { return numeroSecu; }
+    public String getAdresse() { return adresse; }
+    public String getPrenom() { return prenom;  }
+    public String getNumero() { return numero; }
+    public String getNom() { return nom; }
+
+    public void setNom(String nom) { this.nom = nom; }
+    public void setNumero(String numero){this.numero = numero;}
+    public void setPrenom(String prenom) { this.prenom = prenom; }
+    public void setAdresse(String adresse) { this.adresse = adresse; }
+    public void setNumeroSecu(String numeroSecu){this.numeroSecu = numeroSecu;}
+    public void setListeAchat(ArrayList<String[]> listeAchat){ this.listeAchat = listeAchat; }
+
+}
+//----------------------------------------------------------------------------------------------------------------------
+class Medicament {
+    public String reference, libelle, description, quantite, prix;
+    public static HashMap<String, Medicament> hashMapMedicaments = new HashMap<>();
+
+    public Medicament(String reference, String libelle, String description, String qualite, String prix) {
+        this.reference = reference;
+        this.libelle = libelle;
+        this.description = description;
+        this.quantite = qualite;
+        this.prix = prix;
+    }
+
+    public String getReference() { return reference; }
+    public String getLibelle() { return libelle; }
+    public String getDescription() { return description;  }
+    public String getQuantite() { return quantite; }
+    public String getPrix() { return prix; }
+
+    public void setReference(String reference) { this.reference = reference; }
+    public void setLibelle(String libelle){this.libelle = libelle;}
+    public void setDescription(String description) { this.description = description; }
+    public void setQuantite(String quantite) { this.quantite = quantite; }
+    public void setPrix(String prix){this.prix = prix;}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+
+class APP5_Version4 extends JFrame {
+    public static void main(String[] args) {
+        try {
+            JFrame.setDefaultLookAndFeelDecorated(true);
+            new Interface();
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+        }
+    }
+}
+
