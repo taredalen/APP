@@ -216,16 +216,20 @@ class MenuClient extends JFrame {
         JTextField prenom = new JTextField(10);
         JTextField adresse = new JTextField(10);
 
-        if(mode.equals("modifier") || mode.equals("supprimer")) {
+        if(mode.equals("modifier")) {
             nom.setText(Client.hashMapClients.get(key).getNom());
             prenom.setText(Client.hashMapClients.get(key).getPrenom());
             adresse.setText(Client.hashMapClients.get(key).getAdresse());
+            String NT = Client.hashMapClients.get(key).getNumero();
+            String NS = Client.hashMapClients.get(key).getNumeroSecu();
             
             nomBox.add(nom);
             prenomBox.add(prenom);
             adresseBox.add(adresse);
+            numeroTelBox.add(new JLabel(NT));
+            numeroSecuBox.add(new JLabel(NS));
         }
-        else if(mode.equals("chercher")) {
+        else if(mode.equals("chercher") || mode.equals("supprimer")) {
         	String N = Client.hashMapClients.get(key).getNom();
             String PR = Client.hashMapClients.get(key).getPrenom();
             String A = Client.hashMapClients.get(key).getAdresse();
@@ -289,27 +293,37 @@ class MenuClient extends JFrame {
         JFormattedTextField finalNumeroSecu = numeroSecu;
 
         buttonEnregistrerN.addActionListener(arg0 -> {
-            if(finalNumeroSecu.getText().trim().length() >= 13) {
-                Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText(), null);
-                Client.hashMapClients.put(finalNumeroSecu.getText(), client);
-                JOptionPane.showMessageDialog(null, "Client enregistré avec succès!",
-                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
-                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
-            } else { JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
-                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+        	if (finalNumeroSecu.getText().length() == 0 || nom.getText().length() == 0 || prenom.getText().length() == 0 || adresse.getText().length() == 0 || finalNumeroTel.getText().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Vous n'avez pas renseigné tous les champs.", "Manque d'informations", JOptionPane.ERROR_MESSAGE);
             }
+        	else {
+	            if(finalNumeroSecu.getText().trim().length() >= 13) {
+	                Client client = new Client(finalNumeroSecu.getText(), nom.getText(), prenom.getText(),adresse.getText(), finalNumeroTel.getText(), null);
+	                Client.hashMapClients.put(finalNumeroSecu.getText(), client);
+	                JOptionPane.showMessageDialog(null, "Client enregistré avec succès!",
+	                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+	                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+	            } else { JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+	                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+	            }
+        	}
         });
 
         buttonEnregistrerM.addActionListener(arg0 -> {
-            Client.hashMapClients.get(key).setNom(nom.getText());
-            Client.hashMapClients.get(key).setPrenom(prenom.getText());
-            Client.hashMapClients.get(key).setAdresse(adresse.getText());
-            Client.hashMapClients.get(key).setNumero(finalNumeroTel.getText());
-            Client.hashMapClients.get(key).setNumeroSecu(finalNumeroSecu.getText());
-
-            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
-                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
-            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        	if (finalNumeroSecu.getText().length() == 0 || nom.getText().length() == 0 || prenom.getText().length() == 0 || adresse.getText().length() == 0 || finalNumeroTel.getText().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Vous n'avez pas renseigné tous les champs.", "Manque d'informations", JOptionPane.ERROR_MESSAGE);
+            }
+        	else {
+	            Client.hashMapClients.get(key).setNom(nom.getText());
+	            Client.hashMapClients.get(key).setPrenom(prenom.getText());
+	            Client.hashMapClients.get(key).setAdresse(adresse.getText());
+	            Client.hashMapClients.get(key).setNumero(finalNumeroTel.getText());
+	            Client.hashMapClients.get(key).setNumeroSecu(finalNumeroSecu.getText());
+	
+	            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
+	                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+	            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+        	}
         });
 
         buttonSupprimer.addActionListener(arg0 -> {
@@ -468,10 +482,10 @@ class MenuMedicaments extends JFrame {
         JTextField libelle = new JTextField(10);
         JTextField description = new JTextField(10);
 
-        if(mode.equals("modifier") || mode.equals("supprimer")) {
+        if(mode.equals("modifier")) {
             assert referenceTextField != null;
             referenceTextField.setText(Medicament.hashMapMedicaments.get(key).getReference());
-            quantiteTextField.setText(Medicament.hashMapMedicaments.get(key).getQuantite());
+            String qu = Medicament.hashMapMedicaments.get(key).getQuantite();
             prixTextField.setText(Medicament.hashMapMedicaments.get(key).getPrix());
             libelle.setText(Medicament.hashMapMedicaments.get(key).getLibelle());
             description.setText(Medicament.hashMapMedicaments.get(key).getDescription());
@@ -479,10 +493,10 @@ class MenuMedicaments extends JFrame {
             referenceBox.add(referenceTextField);
             libelleBox.add(libelle);
             descriptionBox.add(description);
-            quantiteBox.add(quantiteTextField);
+            quantiteBox.add(new JLabel(qu));
             prixBox.add(prixTextField);
         }
-        else if(mode.equals("rechercher")) {
+        else if(mode.equals("rechercher")|| mode.equals("supprimer")) {
         	String R = Medicament.hashMapMedicaments.get(key).getReference();
             String L = Medicament.hashMapMedicaments.get(key).getLibelle();
             String D = Medicament.hashMapMedicaments.get(key).getDescription();
@@ -533,28 +547,40 @@ class MenuMedicaments extends JFrame {
         JFormattedTextField finalPrixTextField = prixTextField;
 
         buttonEnregistrerN.addActionListener(arg0 -> {
-            if(finalReferenceTextField.getText().trim().length() >= 8) {
-                Medicament medicament = new Medicament(finalReferenceTextField.getText(), libelle.getText(), description.getText(), finalQuantiteTextField.getText(), finalPrixTextField.getText());
-                Medicament.hashMapMedicaments.put(finalReferenceTextField.getText(), medicament);
-                JOptionPane.showMessageDialog(null, "Medicament enregistré avec succès!",
-                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
-                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
-            } else {
-                JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
-                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+            if (finalReferenceTextField.getText().length() == 0 || libelle.getText().length() == 0 || description.getText().length() == 0 || finalQuantiteTextField.getText().length() == 0 || finalPrixTextField.getText().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Vous n'avez pas renseigné tous les champs.", "Manque d'informations", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            else {
+	            if(finalReferenceTextField.getText().trim().length() >= 8) {
+	                Medicament medicament = new Medicament(finalReferenceTextField.getText(), libelle.getText(), description.getText(), finalQuantiteTextField.getText(), finalPrixTextField.getText());
+	                Medicament.hashMapMedicaments.put(finalReferenceTextField.getText(), medicament);
+	                JOptionPane.showMessageDialog(null, "Medicament enregistré avec succès!",
+	                        " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+	                Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+	            } else {
+	                JOptionPane.showMessageDialog(null, "Veuillez remplir correctement!",
+	                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/erreur.png")));
+	            }
             }
         });
 
         buttonEnregistrerM.addActionListener(arg0 -> {
-            Medicament.hashMapMedicaments.get(key).setReference(finalReferenceTextField.getText());
-            Medicament.hashMapMedicaments.get(key).setLibelle(libelle.getText());
-            Medicament.hashMapMedicaments.get(key).setDescription(description.getText());
-            Medicament.hashMapMedicaments.get(key).setQuantite(finalQuantiteTextField.getText());
-            Medicament.hashMapMedicaments.get(key).setPrix(finalPrixTextField.getText());
-
-            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
-                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
-            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            if (finalReferenceTextField.getText().length() == 0 || libelle.getText().length() == 0 || description.getText().length() == 0 || finalQuantiteTextField.getText().length() == 0 || finalPrixTextField.getText().length() == 0) {
+                JOptionPane.showMessageDialog(null, "Vous n'avez pas renseigné tous les champs.", "Manque d'informations", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            else {
+	            Medicament.hashMapMedicaments.get(key).setReference(finalReferenceTextField.getText());
+	            Medicament.hashMapMedicaments.get(key).setLibelle(libelle.getText());
+	            Medicament.hashMapMedicaments.get(key).setDescription(description.getText());
+	            //Medicament.hashMapMedicaments.get(key).setQuantite(finalQuantiteTextField.getText());
+	            Medicament.hashMapMedicaments.get(key).setPrix(finalPrixTextField.getText());
+	
+	            JOptionPane.showMessageDialog(null, "Modifications enregistrees avec succes!",
+	                    " ", JOptionPane.INFORMATION_MESSAGE, new ImageIcon(Interface.class.getResource("icons/ok1.png")));
+	            Interface.tabbedPane.removeTabAt(Interface.tabbedPane.getSelectedIndex());
+            }
         });
 
         buttonSupprimer.addActionListener(arg0 -> {
